@@ -38,7 +38,7 @@ export class App {
      * ***notFoundView*** :  
      * The view to display when accessing a URL that is not set in the routing.
      */
-    public static notFoundView : string;
+    public static notFoundView : string | RouteMap;
 
     /**
      * ***begin*** : 

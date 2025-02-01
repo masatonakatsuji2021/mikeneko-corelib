@@ -51,10 +51,9 @@ export class Data {
         return this.__data[name].length;
     }
 
-    public static pop(name : string) : Data {
+    public static pop(name : string) : any {
         if (!this.__data[name]) return this;
-        this.__data[name].pop();
-        return this;
+        return this.__data[name].pop();
     }
 
     public static now(name : string) : any {

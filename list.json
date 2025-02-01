@@ -6,7 +6,6 @@
     "Data", 
     "Dialog",
     "VirtualDom",
-    "Exception", 
     "KeyEvent", 
     "Response", 
     "Transition",

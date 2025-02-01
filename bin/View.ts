@@ -89,12 +89,12 @@ export class View extends Render {
      * ***stackOpen*** : Temporarily bring a view to the foreground  
      * If it is displayed using this method, it will not be saved in the history.  
      * If the destination View has a handleLeaveStackClose method, you can get the return value using async/await.
-     * @param {Array<any>} aregments
+     * @param {any} data send data
      * @returns {Promise<any>} 
      */
-    public static stackOpen(...aregments : Array<any>) : Promise<any> ;
+    public static stackOpen(data : any) : Promise<any> ;
 
-    public static stackOpen(...aregments : Array<any>) {
+    public static stackOpen(data? : any) {
 
         return new Promise(async (resolve) => {
 
@@ -113,7 +113,7 @@ export class View extends Render {
             view.vdo = article;
             view.vdos = main.childs;
 
-            Data.set("backHandle", async ()=>{
+            Data.push("backHandle", async ()=>{
 
                 if (MyApp.animationCloseClassName) dom("main").addClass(MyApp.animationCloseClassName);
                 if (MyApp.animationOpenClassName) dom("main").removeClass(MyApp.animationOpenClassName);
@@ -133,8 +133,8 @@ export class View extends Render {
             if (MyApp.animationCloseClassName) dom("main").removeClass(MyApp.animationCloseClassName);
             if (MyApp.animationOpenClassName) dom("main").addClass(MyApp.animationOpenClassName);
 
-            if (aregments) {
-                await view.handle(...aregments);
+            if (data) {
+                await view.handle(data);
             }
             else {
                 await view.handle();
@@ -264,5 +264,5 @@ export class View extends Render {
      * ***handleLeaveStackClose*** : Handler that is executed when the screen is removed after being temporarily displayed foreground using stackOpen  
      * @returns 
      */
-    public handleLeaveStackClose() : Promise<void | any> { return; }
+    public handleLeaveStackClose() : Promise<void | any> | void | any { }
 }

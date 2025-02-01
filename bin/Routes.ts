@@ -37,7 +37,6 @@ export class Routes{
             if (MyApp.maps) MyApp.routes = RMapConvert(MyApp.maps);
             Routes._routes = Routes.routeConvert(MyApp.routes);
         }
-
         let targetUrl : string = location.hash.substring(1);
         if(url) targetUrl = url;
 

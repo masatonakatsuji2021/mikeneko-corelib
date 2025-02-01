@@ -9,7 +9,6 @@ import { Template } from "Template";
 import { Background } from "Background";
 import { Response } from "Response";
 import { Shortcode } from "Shortcode";
-import { RMapConvert } from "RouteMap";
 
 export class Startor {
 

@@ -53,11 +53,10 @@ export class RouteMap {
         }
         else {
             if (!RMapIndex) {
-                if (!option.url) this.url = "/";
-            }
-            else {
+                this.url = "/";
                 if (option.url) this.url = option.url;
             }
+            if (option.url) this.url = option.url;
             const optionView = option as RouteMapDataCaseView;
             if (optionView.view) this.view = optionView.view;
             const optionHandle = option as RouteMapDataCaseHandle;

@@ -1,0 +1,17 @@
+{
+    "name": "miekenko-corelib",
+    "description": "Core library package of SPA (Single Page Action) framework \"mikeneko\".",
+    "author": "masato nakatsuji",
+    "license": "MIT",
+    "version": "1.0.0",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/masatonakatsuji2021/mikeneko-corelib.git"
+    },
+    "devDependencies": {
+        "@types/node": "^20.10.1"
+    },
+    "dependencies": {
+        "@types/node": "^20.10.1"
+    }
+}

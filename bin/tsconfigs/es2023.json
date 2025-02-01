@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "es2023",
+    "module": "commonjs",
+    "lib": ["es6","dom"],
+    "outDir":"../../dist/es2023",
+    "paths": {
+      "*": [ "../*"]
+    }
+  },
+  "include" : [
+    "../*"
+  ],
+  "exclude": [
+    "../source/*"
+  ]
+}

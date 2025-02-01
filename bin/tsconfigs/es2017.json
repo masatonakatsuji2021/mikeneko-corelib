@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "es2017",
+    "module": "commonjs",
+    "lib": ["es6","dom"],
+    "outDir":"../../dist/es2017",
+    "paths": {
+      "*": [ "../*"]
+    }
+  },
+  "include" : [
+    "../*"
+  ],
+  "exclude": [
+    "../source/*"
+  ]
+}

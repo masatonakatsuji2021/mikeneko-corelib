@@ -753,6 +753,7 @@ export class Response {
             else {
                 dom("head").html = "";
             }
+            this.setDefaultCss();
         }
 
         const beforeHeader = Data.get("beforeHeader");
@@ -778,5 +779,12 @@ export class Response {
                 dom("footer").html = "";
             }
         }
+    }
+
+    private static setDefaultCss(){
+        if (dom("head").querySelector("link[m=def]").length > 0)  return;
+        let style = use("CORERES/style.css");
+        if (!globalThis.webpack) style = "data:text/css;base64," + style;        
+        dom("head").afterBegin("<link rel=\"stylesheet\" m=\"def\" href=\"" + style + "\">");
     }
 }

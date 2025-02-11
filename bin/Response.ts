@@ -202,7 +202,7 @@ export class Response {
     /**
      * ***stack*** : Temporarily bring the specified RouteMap View to the foreground.  
      * If it is displayed using this method, it will not be saved in the history.  
-     * If the destination View has a handleLeaveStackClose method, you can use async/await to capture the return value.
+     * If the destination View has a **handleLeaveStackClose** method, you can use async/await to capture the return value.
      * @param {RouteMap} map RouteMap Class Object
      * @returns {Promise<any>} 
      */
@@ -211,7 +211,7 @@ export class Response {
     /**
      * ***stack*** : Temporarily bring the specified RouteMap View to the foreground.  
      * If it is displayed using this method, it will not be saved in the history.  
-     * If the destination View has a handleLeaveStackClose method, you can use async/await to capture the return value.
+     * If the destination View has a **handleLeaveStackClose** method, you can use async/await to capture the return value.
      * @param {RouteMap} map RouteMap Class Object
      * @param {any} data send data
      * @returns {Promise<any>} 
@@ -459,8 +459,7 @@ export class Response {
             }
         }
 
-        if (MyApp.animationCloseClassName) dom("main").addClass(MyApp.animationCloseClassName);
-        if (MyApp.animationOpenClassName) dom("main").removeClass(MyApp.animationOpenClassName);
+        this.animationClose(MyApp);
 
         if (MyApp.delay) await Lib.sleep(MyApp.delay);
 
@@ -637,14 +636,13 @@ export class Response {
         const viewName : string = Lib.getModuleName(route.view + "View");
         const viewPath : string = "app/view/" + Lib.getModulePath(route.view + "View");
 
-        if(!useExists(viewPath)){
-            throw("\"" + viewName + "\" Class is not found.");
-        }
-
+        if(!useExists(viewPath)) throw Error("\"" + viewName + "\" Class file is not found.");
+        
         const View_ = use(viewPath);
+        if (!View_[viewName]) throw Error("\"" + viewName + "\" Class is not exist.");
         const vm : View = new View_[viewName]();
         vm.sendData = data;
-        
+
         if(Data.get("beforeViewPath") != viewPath){
             Data.set("beforeViewPath", viewPath);
             if(vm.handleBegin) await vm.handleBegin();
@@ -664,8 +662,7 @@ export class Response {
 
         const MyApp : typeof App = use("app/config/App").MyApp;
 
-        if (MyApp.animationCloseClassName) dom("main").removeClass(MyApp.animationCloseClassName);
-        if (MyApp.animationOpenClassName) dom("main").addClass(MyApp.animationOpenClassName);
+        this.animationOpen(MyApp);
 
         vm.vdo = dom("main article");
         
@@ -786,5 +783,15 @@ export class Response {
         let style = use("CORERES/style.css");
         if (!globalThis.webpack) style = "data:text/css;base64," + style;        
         dom("head").afterBegin("<link rel=\"stylesheet\" m=\"def\" href=\"" + style + "\">");
+    }
+
+    private static animationOpen(myApp: typeof App) {
+        if (myApp.animationCloseClassName) dom("main article:first-child").removeClass(myApp.animationCloseClassName);
+        if (myApp.animationOpenClassName) dom("main article:first-child").addClass(myApp.animationOpenClassName);
+    }
+
+    private static animationClose(myApp: typeof App) {
+        if (myApp.animationCloseClassName) dom("main article:first-child").addClass(myApp.animationCloseClassName);
+        if (myApp.animationOpenClassName) dom("main article:first-child").removeClass(myApp.animationOpenClassName);
     }
 }

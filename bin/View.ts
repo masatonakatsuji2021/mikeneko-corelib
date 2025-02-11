@@ -80,7 +80,7 @@ export class View extends Render {
     /**
      * ***stackOpen*** : Temporarily bring a view to the foreground  
      * If it is displayed using this method, it will not be saved in the history.  
-     * If the destination View has a handleLeaveStackClose method, you can get the return value using async/await.
+     * If the destination View has a **handleLeaveStackClose** method, you can get the return value using async/await.
      * @returns {Promise<any>} 
      */
     public static stackOpen() : Promise<any> ;
@@ -102,8 +102,7 @@ export class View extends Render {
 
             const MyApp : typeof App = use("app/config/App").MyApp;
             
-            if (MyApp.animationCloseClassName) dom("main").addClass(MyApp.animationCloseClassName);
-            if (MyApp.animationOpenClassName) dom("main").removeClass(MyApp.animationOpenClassName);
+            this.animationClose(MyApp);
 
             if (MyApp.delay) await Lib.sleep(MyApp.delay);
 
@@ -113,25 +112,22 @@ export class View extends Render {
             view.vdo = article;
             view.vdos = main.childs;
 
+            this.animationOpen(MyApp);
+
             Data.push("backHandle", async ()=>{
 
-                if (MyApp.animationCloseClassName) dom("main").addClass(MyApp.animationCloseClassName);
-                if (MyApp.animationOpenClassName) dom("main").removeClass(MyApp.animationOpenClassName);
+                this.animationClose(MyApp);
         
                 if (MyApp.delay) await Lib.sleep(MyApp.delay);
 
                 dom("main article:last-child").remove();
 
-                if (MyApp.animationCloseClassName) dom("main").removeClass(MyApp.animationCloseClassName);
-                if (MyApp.animationOpenClassName) dom("main").addClass(MyApp.animationOpenClassName);
+                this.animationOpen(MyApp);
 
                 const output = await view.handleLeaveStackClose();
 
                 resolve(output);
             });
-
-            if (MyApp.animationCloseClassName) dom("main").removeClass(MyApp.animationCloseClassName);
-            if (MyApp.animationOpenClassName) dom("main").addClass(MyApp.animationOpenClassName);
 
             if (data) {
                 await view.handle(data);
@@ -140,6 +136,16 @@ export class View extends Render {
                 await view.handle();
             }
         });
+    }
+
+    private static animationOpen(myApp: typeof App) {
+        if (myApp.animationCloseClassName) dom("main article:last-child").removeClass(myApp.animationCloseClassName);
+        if (myApp.animationOpenClassName) dom("main article:last-child").addClass(myApp.animationOpenClassName);
+    }
+
+    private static animationClose(myApp: typeof App) {
+        if (myApp.animationCloseClassName) dom("main article:last-child").addClass(myApp.animationCloseClassName);
+        if (myApp.animationOpenClassName) dom("main article:last-child").removeClass(myApp.animationOpenClassName);
     }
 
     /**

@@ -3,7 +3,7 @@ import { Render } from "Render";
 import { dom, VirtualDom } from "VirtualDom";
 import { UI } from "UI";
 import { Lib } from "Lib";
-import { App } from "App";
+import { App, AnimationClassSelector } from "App";
 import { Data } from "Data";
 
 /**
@@ -127,40 +127,52 @@ export class View extends Render {
             }
         });
     }
-
+    
     private static animationStackOpen(myApp: typeof App, view : View) {
-        // @ts-ignore
-        if (!view) view = {};
-        if (view.animationStackCloseClassName) {            
-            dom("main article:last-child").removeClass(view.animationStackCloseClassName);
-        }
-        else {
-            if (myApp.animationStackCloseClassName) dom("main article:last-child").removeClass(myApp.animationStackCloseClassName);
-        }
-
-        if (view.animationStackOpenClassName) {
-            dom("main article:last-child").addClass(view.animationStackOpenClassName);
-        }
-        else {
-            if (myApp.animationStackOpenClassName) dom("main article:last-child").addClass(myApp.animationStackOpenClassName);
-        }
+        this.animationStack(true, myApp, view);
+    }
+    
+    private static animationStackClose(myApp: typeof App, view : View) {
+        this.animationStack(false, myApp, view);
     }
 
-    private static animationStackClose(myApp: typeof App, view : View) {
+    private static animationStack(mode : boolean, myApp: typeof App, view: View) {
         // @ts-ignore
         if (!view) view = {};
-        if (view.animationStackOpenClassName) {
-            dom("main article:last-child").removeClass(view.animationStackOpenClassName);
+
+        let close : string;
+        if (myApp.animationClassSelector) {
+            if (myApp.animationClassSelector.stack){
+                if (myApp.animationClassSelector.stack.close) close = myApp.animationClassSelector.stack.close;
+            }
         }
-        else {
-            if (myApp.animationStackOpenClassName) dom("main article:last-child").removeClass(myApp.animationStackOpenClassName);
+        if (view.animationClassSelector) {
+            if (view.animationClassSelector.stack){
+                if (view.animationClassSelector.stack.close) close = view.animationClassSelector.stack.close;
+            }
         }
         
-        if (view.animationStackCloseClassName) {
-            dom("main article:last-child").addClass(view.animationStackCloseClassName);            
+        let open : string;
+        if (myApp.animationClassSelector) {
+            if (myApp.animationClassSelector.stack){
+                if (myApp.animationClassSelector.stack.open) open = myApp.animationClassSelector.stack.open;
+            }
+        }
+        if (view.animationClassSelector) {
+            if (view.animationClassSelector.stack){
+                if (view.animationClassSelector.stack.open) open = view.animationClassSelector.stack.open;
+            }
+        }
+
+        if (mode) {
+            // open
+            if (close) dom("main article:last-child").removeClass(close);
+            if (open) dom("main article:last-child").addClass(open);    
         }
         else {
-            if (myApp.animationStackCloseClassName) dom("main article:last-child").addClass(myApp.animationStackCloseClassName);            
+            // close
+            if (close) dom("main article:last-child").addClass(close);
+            if (open) dom("main article:last-child").removeClass(open);    
         }
     }
 
@@ -278,12 +290,10 @@ export class View extends Render {
      */
     public handleLeaveStackClose() : Promise<void | any> | void | any { }
 
-
-    public animationOpenClassName : string;
-
-    public animationCloseClassName : string;
-
-    public animationStackOpenClassName : string;
-
-    public animationStackCloseClassName : string;
+    /**
+     * ***animationClassSelector*** : Set the operation of class attribute values ​​for CSS animation during screen transitions.  
+     * Set the class attribute value to be specified on the screen when moving forward, backward, or stacking.  
+     * Specify animation properties for class attributes set on the style sheet.
+     */
+    public animationClassSelector : AnimationClassSelector;
 }

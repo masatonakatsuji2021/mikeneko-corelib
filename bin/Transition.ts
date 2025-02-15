@@ -796,38 +796,79 @@ export class Transition {
     }
 
     private static animationOpen(myApp: typeof App, view: View) {
-        // @ts-ignore
-        if (!view) view = {};
-        if (view.animationCloseClassName) {
-            dom("main article:first-child").removeClass(view.animationCloseClassName);
-        }
-        else {
-            if (myApp.animationCloseClassName) dom("main article:first-child").removeClass(myApp.animationCloseClassName);
-        }
-
-        if (view.animationOpenClassName) {
-            dom("main article:first-child").addClass(view.animationOpenClassName);
-        }
-        else {
-            if (myApp.animationOpenClassName) dom("main article:first-child").addClass(myApp.animationOpenClassName);
-        }
+        this.animation(true, myApp, view);
     }
 
     private static animationClose(myApp: typeof App, view: View) {
+        this.animation(false, myApp, view);
+    }
+
+    private static animation(mode : boolean, myApp: typeof App, view: View) {
+
         // @ts-ignore
         if (!view) view = {};
-        if (view.animationCloseClassName) {
-            dom("main article:first-child").addClass(view.animationCloseClassName);
+
+        let close : string;
+        if (myApp.animationClassSelector) {
+            if (this.isNext) {
+                if (myApp.animationClassSelector.next){
+                    if (myApp.animationClassSelector.next.close) close = myApp.animationClassSelector.next.close;
+                }
+            }
+            else {
+                if (myApp.animationClassSelector.back){
+                    if (myApp.animationClassSelector.back.close) close = myApp.animationClassSelector.back.close;
+                }
+            }
         }
-        else {
-            if (myApp.animationCloseClassName) dom("main article:first-child").addClass(myApp.animationCloseClassName);
+        if (view.animationClassSelector) {
+            if (this.isNext) {
+                if (view.animationClassSelector.next){
+                    if (view.animationClassSelector.next.close) close = view.animationClassSelector.next.close;
+                }
+            }
+            else {
+                if (view.animationClassSelector.back){
+                    if (view.animationClassSelector.back.close) close = view.animationClassSelector.back.close;
+                }
+            }
+        }
+        
+        let open : string;
+        if (myApp.animationClassSelector) {
+            if (this.isNext) {
+                if (myApp.animationClassSelector.next){
+                    if (myApp.animationClassSelector.next.open) open = myApp.animationClassSelector.next.open;
+                }
+            }
+            else {
+                if (myApp.animationClassSelector.back){
+                    if (myApp.animationClassSelector.back.open) open = myApp.animationClassSelector.back.open;
+                }
+            }
+        }
+        if (view.animationClassSelector) {
+            if (this.isNext) {
+                if (view.animationClassSelector.next){
+                    if (view.animationClassSelector.next.open) open = view.animationClassSelector.next.open;
+                }
+            }
+            else {
+                if (view.animationClassSelector.back){
+                    if (view.animationClassSelector.back.open) open = view.animationClassSelector.back.open;
+                }
+            }
         }
 
-        if (view.animationOpenClassName) {
-            dom("main article:first-child").removeClass(view.animationOpenClassName);            
+        if (mode) {
+            // open
+            if (close) dom("main article:first-child").removeClass(close);
+            if (open) dom("main article:first-child").addClass(open);    
         }
         else {
-            if (myApp.animationOpenClassName) dom("main article:first-child").removeClass(myApp.animationOpenClassName);            
+            // close
+            if (close) dom("main article:first-child").addClass(close);
+            if (open) dom("main article:first-child").removeClass(open);    
         }
     }
 }

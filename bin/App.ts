@@ -4,6 +4,21 @@ export interface Routes {
     [url : string] : string | Routes | Function,
 }
 
+export interface AnimationClassSelector {
+    next?: {
+        open?: string,
+        close?:  string,
+    },
+    back?: {
+        open?:  string,
+        close?: string,
+    },
+    stack?: {
+        open?: string,
+        close?: string,
+    },
+}
+
 export enum AppRouteType {
     /** 
      * ***web*** : This mode corresponds to screen transitions on the browser.  
@@ -101,22 +116,9 @@ export class App {
     public static delay : number = 100;
 
     /**
-     * ***animationOpenClassName*** : Class attribute name when opening a page with animation.
-     * ```typescript
-     * public static animationOpenClassName : string = "open";
-     * ```
+     * ***animationClassSelector*** : Set the operation of class attribute values ​​for CSS animation during screen transitions.  
+     * Set the class attribute value to be specified on the screen when moving forward, backward, or stacking.  
+     * Specify animation properties for class attributes set on the style sheet
      */
-    public static animationOpenClassName : string;
-
-    /**
-     * ***animationCloseClassName*** : Class attribute name when closing a page with animation.
-     * ```typescript
-     * public static animationCloseClassName : string = "close";
-     * ```
-     */
-    public static animationCloseClassName : string;
-
-    public static animationStackOpenClassName: string;
-
-    public static animationStackCloseClassName: string;
+    public static animationClassSelector : AnimationClassSelector;
 }

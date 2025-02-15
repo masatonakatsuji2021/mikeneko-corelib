@@ -96,10 +96,6 @@ export class View extends Render {
             const view = new this();
 
             const MyApp : typeof App = use("app/config/App").MyApp;
-            
-            this.animationClose(MyApp);
-
-            if (MyApp.delay) await Lib.sleep(MyApp.delay);
 
             const article = VirtualDom.create(this.getHtml(), "article");
             const main = dom("main");
@@ -107,22 +103,20 @@ export class View extends Render {
             view.vdo = article;
             view.vdos = main.childs;
 
-            this.animationOpen(MyApp);
+            this.animationStackOpen(MyApp, view);
 
             Data.push("backHandle", async (value)=>{
 
-                this.animationClose(MyApp);
-        
-                if (MyApp.delay) await Lib.sleep(MyApp.delay);
-
-                dom("main article:last-child").remove();
-
-                this.animationOpen(MyApp);
+                this.animationStackClose(MyApp, view);
 
                 let output = await view.handleLeaveStackClose();
                 if (value) output = value;
 
                 resolve(output);
+        
+                if (MyApp.delay) await Lib.sleep(MyApp.delay);
+
+                dom("main article:last-child").remove();
             });
 
             if (data) {
@@ -134,14 +128,40 @@ export class View extends Render {
         });
     }
 
-    private static animationOpen(myApp: typeof App) {
-        if (myApp.animationCloseClassName) dom("main article:last-child").removeClass(myApp.animationCloseClassName);
-        if (myApp.animationOpenClassName) dom("main article:last-child").addClass(myApp.animationOpenClassName);
+    private static animationStackOpen(myApp: typeof App, view : View) {
+        // @ts-ignore
+        if (!view) view = {};
+        if (view.animationStackCloseClassName) {            
+            dom("main article:last-child").removeClass(view.animationStackCloseClassName);
+        }
+        else {
+            if (myApp.animationStackCloseClassName) dom("main article:last-child").removeClass(myApp.animationStackCloseClassName);
+        }
+
+        if (view.animationStackOpenClassName) {
+            dom("main article:last-child").addClass(view.animationStackOpenClassName);
+        }
+        else {
+            if (myApp.animationStackOpenClassName) dom("main article:last-child").addClass(myApp.animationStackOpenClassName);
+        }
     }
 
-    private static animationClose(myApp: typeof App) {
-        if (myApp.animationCloseClassName) dom("main article:last-child").addClass(myApp.animationCloseClassName);
-        if (myApp.animationOpenClassName) dom("main article:last-child").removeClass(myApp.animationOpenClassName);
+    private static animationStackClose(myApp: typeof App, view : View) {
+        // @ts-ignore
+        if (!view) view = {};
+        if (view.animationStackOpenClassName) {
+            dom("main article:last-child").removeClass(view.animationStackOpenClassName);
+        }
+        else {
+            if (myApp.animationStackOpenClassName) dom("main article:last-child").removeClass(myApp.animationStackOpenClassName);
+        }
+        
+        if (view.animationStackCloseClassName) {
+            dom("main article:last-child").addClass(view.animationStackCloseClassName);            
+        }
+        else {
+            if (myApp.animationStackCloseClassName) dom("main article:last-child").addClass(myApp.animationStackCloseClassName);            
+        }
     }
 
     /**
@@ -257,4 +277,13 @@ export class View extends Render {
      * @returns 
      */
     public handleLeaveStackClose() : Promise<void | any> | void | any { }
+
+
+    public animationOpenClassName : string;
+
+    public animationCloseClassName : string;
+
+    public animationStackOpenClassName : string;
+
+    public animationStackCloseClassName : string;
 }

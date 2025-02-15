@@ -478,7 +478,7 @@ export class Transition {
             }
         }
 
-        this.animationClose(MyApp);
+        this.animationClose(MyApp, befView);
 
         if (MyApp.delay) await Lib.sleep(MyApp.delay);
 
@@ -667,7 +667,7 @@ export class Transition {
 
         const MyApp : typeof App = use("app/config/App").MyApp;
 
-        this.animationOpen(MyApp);
+        this.animationOpen(MyApp, vm);
 
         vm.vdo = dom("main article");
         
@@ -795,13 +795,39 @@ export class Transition {
         dom("head").afterBegin("<link rel=\"stylesheet\" m=\"def\" href=\"" + style + "\">");
     }
 
-    private static animationOpen(myApp: typeof App) {
-        if (myApp.animationCloseClassName) dom("main article:first-child").removeClass(myApp.animationCloseClassName);
-        if (myApp.animationOpenClassName) dom("main article:first-child").addClass(myApp.animationOpenClassName);
+    private static animationOpen(myApp: typeof App, view: View) {
+        // @ts-ignore
+        if (!view) view = {};
+        if (view.animationCloseClassName) {
+            dom("main article:first-child").removeClass(view.animationCloseClassName);
+        }
+        else {
+            if (myApp.animationCloseClassName) dom("main article:first-child").removeClass(myApp.animationCloseClassName);
+        }
+
+        if (view.animationOpenClassName) {
+            dom("main article:first-child").addClass(view.animationOpenClassName);
+        }
+        else {
+            if (myApp.animationOpenClassName) dom("main article:first-child").addClass(myApp.animationOpenClassName);
+        }
     }
 
-    private static animationClose(myApp: typeof App) {
-        if (myApp.animationCloseClassName) dom("main article:first-child").addClass(myApp.animationCloseClassName);
-        if (myApp.animationOpenClassName) dom("main article:first-child").removeClass(myApp.animationOpenClassName);
+    private static animationClose(myApp: typeof App, view: View) {
+        // @ts-ignore
+        if (!view) view = {};
+        if (view.animationCloseClassName) {
+            dom("main article:first-child").addClass(view.animationCloseClassName);
+        }
+        else {
+            if (myApp.animationCloseClassName) dom("main article:first-child").addClass(myApp.animationCloseClassName);
+        }
+
+        if (view.animationOpenClassName) {
+            dom("main article:first-child").removeClass(view.animationOpenClassName);            
+        }
+        else {
+            if (myApp.animationOpenClassName) dom("main article:first-child").removeClass(myApp.animationOpenClassName);            
+        }
     }
 }

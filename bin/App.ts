@@ -115,4 +115,8 @@ export class App {
      * ```
      */
     public static animationCloseClassName : string;
+
+    public static animationStackOpenClassName: string;
+
+    public static animationStackCloseClassName: string;
 }

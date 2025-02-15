@@ -1,4 +1,5 @@
 import { Shortcode } from "Shortcode";
+import { MDateTime } from "MDateTime";
 
 export class Lib {
 
@@ -146,21 +147,26 @@ export class Lib {
     /**
      * *** datetime*** :  prints the current date and time  
      * Output as fgDateTime class object  
-     * @returns {SbnDateTime} FgDateTime class Object  
+     * @returns {MDateTime} MDateTime class Object  
      */
-    public static datetime() : SbnDateTime;
+    public static datetime() : MDateTime;
 
     /**
      * #### datetime
      * Get date and time from given datetime
      * Output as fgDateTime class object
      * @param {string} datetime Specified date and time
-     * @returns {SbnDateTime} FgDateTime class Object
+     * @returns {MDateTime} MDateTime class Object
      */
-    public static datetime(datetime : string) : SbnDateTime;
+    public static datetime(datetime : string) : MDateTime;
 
-    public static datetime(datetime? : string) : SbnDateTime{
-        return new SbnDateTime(datetime);
+    public static datetime(datetime? : string) : MDateTime {
+        if (datetime) {
+            return new MDateTime(datetime);
+        }
+        else {
+            return new MDateTime();
+        }
     }
 
     /**
@@ -220,64 +226,5 @@ export class Lib {
     public static importResourceScript(scriptName : string) {
         let script = this.getResource(scriptName);
         return eval(script);
-    }
-}
-
-export class SbnDateTime{
-    
-    private d : Date;
-
-    public constructor(datetime? : string){
-        if(datetime){
-            this.d = new Date(datetime);
-        }
-        else{
-            this.d = new Date();
-        }
-    }
-
-    public format(format : string) : string{
-        if(format == undefined) format = "YYYY/MM/DD HH:II:SS";
-        format = format.split("YYYY").join(this.getYear());
-        format = format.split("MM").join(this.getMonth());
-        format = format.split("DD").join(this.getDate());
-        format = format.split("W").join(this.getDay());
-        format = format.split("HH").join(this.getHours());
-        format = format.split("II").join(this.getMinutes());
-        format = format.split("SS").join(this.getSeconds());
-        format = format.split("U").join(this.getTime());  
-        return format;
-    }
-
-    public getYear() : string{
-        return this.d.getFullYear().toString();
-    };
-
-    public getMonth() : string{
-        return ("00" + (this.d.getMonth() + 1)).slice(-2);
-    }
-
-    public getDate() : string{
-        return ("00" + this.d.getDate()).slice(-2);
-    }
-
-    public getDay() : string{
-        return this.d.getDay().toString();
-    }
-
-    public getHours() : string{
-        return ("00" + this.d.getHours()).slice(-2);
-    }
-
-    public getMinutes() : string{
-        return ("00" + this.d.getMinutes()).slice(-2);
-    }
-
-    public getSeconds() : string{
-        return ("00" + this.d.getSeconds()).slice(-2);
-    }
-
-    public getTime() : string{
-        return this.d.getTime().toString();
     }
 }

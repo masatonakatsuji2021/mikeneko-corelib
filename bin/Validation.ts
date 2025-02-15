@@ -653,6 +653,11 @@ export class Validation {
     public rules : ValidateRuleMaps;
 
     /**
+     * ***oneMessage*** : If set to true, only the first error will be output if multiple errors occur.
+     */
+    public oneMessage : boolean = false;
+
+    /**
      * ***verify*** : Runs validation checks on given input data.
      * @param {any} data Input data 
      * @returns {ValidateErrorResult}
@@ -735,7 +740,7 @@ export class Validation {
                                 message: rule.message,
                             };
 
-                            if (options.oneMessage) {
+                            if (options.oneMessage || this.oneMessage) {
                                 result.errors[name][0] = errors;
                             }
                             else {

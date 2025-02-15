@@ -71,27 +71,6 @@ export class Controller {
     public footer : string;
 
     /**
-     * ***handleBefore*** : A handler executed just before transitioning to the page.
-     */
-    public handleBefore() : void | Promise<void> { }
-
-    /**
-     * ***handleAfter*** : A handler executed immediately after transitioning to the page
-     */
-    public handleAfter() : void | Promise<void> {}
-
-    /**
-     * ***handleRenderBefore*** : A handler executed immediately after page transition and rendering process to the screen is completed
-     */
-    public handleRenderBefore() : void | Promise<void> {}
-
-    /**
-     * ***handleRenderAfter*** : A handler that is executed after page transition, after rendering process to the screen is completed, 
-     * and after the event for each action is completed.
-     */
-    public handleRenderAfter() : void | Promise<void> {}
-
-    /**
      * ***handleLeave*** : A handler executed when leaving the page
      * @param {string} action before access controller action name
      */

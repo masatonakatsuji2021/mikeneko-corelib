@@ -239,6 +239,25 @@ export class Response {
     }
 
     /**
+     * ***stackClose*** : Can be used when displaying a screen using stack.  
+     * Returns to the previous screen and returns the specified arguments to the previous screen.
+     * @param {any} result Value to pass to previous screen.
+     * @returns 
+     */
+    public static stackClose(result : any) : void {
+        if (Response.lock) return;
+        if (this.isBack) return;
+
+        this.isBack = true;
+
+        if (Data.getLength("backHandle")) {
+            const backHandle = Data.pop("backHandle");
+            backHandle(result);
+            this.isBack = false;
+        }
+    }
+
+    /**
      * ***historyAdd*** : Add root path to screen transition history.  
      * It will only be added to the history and will not change the screen.
      * @param {string | number} url route path
@@ -583,13 +602,9 @@ export class Response {
             cont.beginStatus = true;
         }
 
-        await cont.handleBefore();
-        if(vw) await vw.handleBefore();
-
         Data.set("beforeController", cont);
         Data.set("beforeControllerAction", route.action);
         Data.set("beforeView", null);
-        Data.set("beforeViewPath", null);
         Data.set("childClasss", {});
         
         if(cont["before_" + route.action]){
@@ -602,12 +617,7 @@ export class Response {
             }
         }
 
-        await cont.handleAfter();
-        if(vw) await vw.handleAfter();
         await Response.__rendering(route, cont);
-
-        await cont.handleRenderBefore();
-        if(vw) await vw.handleRenderBefore();
 
         if(cont[route.action]){
             const method : string = route.action;
@@ -627,9 +637,6 @@ export class Response {
                 await vw.handle();
             }
         }
-
-        await cont.handleRenderAfter(); 
-        if(vw) await vw.handleRenderAfter();
     }
 
     private static async renderingOnView(route : DecisionRoute, data?: any) {
@@ -643,20 +650,18 @@ export class Response {
         const vm : View = new View_[viewName]();
         vm.sendData = data;
 
-        if(Data.get("beforeViewPath") != viewPath){
-            Data.set("beforeViewPath", viewPath);
-            if(vm.handleBegin) await vm.handleBegin();
-        }
-
         Data.set("beforeView", vm);
         Data.set("beforeController", null);
         Data.set("beforeControllerPath", null);
         Data.set("beforeControllerAction", null);
         Data.set("childClasss",  {});
 
-        await vm.handleBefore();
-
-        await vm.handleAfter();
+        if(route.args){   
+            await vm.handleBefore(...route.args);
+        }
+        else {
+            await vm.handleBefore();
+        }
 
         await Response.__rendering(route, vm);
 
@@ -666,7 +671,12 @@ export class Response {
 
         vm.vdo = dom("main article");
         
-        await vm.handleRenderBefore();
+        if(route.args){   
+            await vm.handleRenderBefore(...route.args);
+        }
+        else {
+            await vm.handleRenderBefore();
+        }
 
         // is next page..
         if (Response.isNext) {
@@ -690,12 +700,12 @@ export class Response {
 
         if(route.args){
             await vm.handle(...route.args);
+            await vm.handleRenderAfter(...route.args);
         }
         else{
             await vm.handle();
+            await vm.handleRenderAfter();
         }
-
-        await vm.handleRenderAfter();
     }
 
     public static async __rendering(route : DecisionRoute, context : Controller | View){
@@ -731,8 +741,8 @@ export class Response {
         }
         else {
             const view = context as View;
-            if (view.contentHtml) {
-                viewHtml = view.contentHtml;
+            if (view.html) {
+                viewHtml = view.html;
             }
         }
         if (!dom("main").length) dom("body").append("<main></main>");

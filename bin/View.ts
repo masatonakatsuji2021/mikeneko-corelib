@@ -12,11 +12,6 @@ import { Data } from "Data";
 export class View extends Render {
 
     protected static type : string = "View";
-
-    /**
-     * ***contentHtml`` : If you place HTML content for screen display here, it will be displayed..
-     */
-    public contentHtml : string;
     
     /**
      * ***bind*** : Bind the View content to the specified virtual DOM class.
@@ -114,7 +109,7 @@ export class View extends Render {
 
             this.animationOpen(MyApp);
 
-            Data.push("backHandle", async ()=>{
+            Data.push("backHandle", async (value)=>{
 
                 this.animationClose(MyApp);
         
@@ -124,7 +119,8 @@ export class View extends Render {
 
                 this.animationOpen(MyApp);
 
-                const output = await view.handleLeaveStackClose();
+                let output = await view.handleLeaveStackClose();
+                if (value) output = value;
 
                 resolve(output);
             });
@@ -206,30 +202,20 @@ export class View extends Render {
     public handleAlways() : void | Promise<void> {}
 
     /**
-     * ***handleBegin*** : A handler executed just before transitioning to the page.
-     */
-    public handleBegin() : void | Promise<void> {}
-
-    /**
      * ***handleBefore*** : A handler executed just before transitioning to the page.
      */
-    public handleBefore(beginStatus? : boolean) : void | Promise<void> {}
-    
-    /**
-     * ***handleAfter*** : A handler executed immediately after transitioning to the page
-     */
-    public handleAfter(beginStatus? : boolean) : void | Promise<void> {}
+    public handleBefore(...aregment : Array<string | number>) : void | Promise<void> {}
 
     /**
      * ***handleRenderBefore*** : A handler executed immediately after page transition and rendering process to the screen is completed
      */
-    public handleRenderBefore(beginStatus? : boolean) : void | Promise<void> {}
+    public handleRenderBefore(...aregment : Array<string | number>) : void | Promise<void> {}
 
     /**
      * ***handleRenderAfter*** : A handler that is executed after page transition, after rendering process to the screen is completed, 
      * and after the event for each action is completed.
      */
-    public handleRenderAfter(beginStatus? : boolean) :void | Promise<void> {}
+    public handleRenderAfter(...aregment : Array<string | number>) :void | Promise<void> {}
 
     /**
      * ***handleLeave*** : A handler executed when leaving the page.

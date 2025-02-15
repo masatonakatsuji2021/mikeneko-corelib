@@ -7,7 +7,12 @@ export class Render {
     protected static type : string;
 
     protected static ___PATH___ : string;
-
+    
+    /**
+     * ***html*** : Place your HTML content here and it will be displayed.
+     */
+    public html : string = "";
+    
     /**
      * ***myMjs*** : Virtual Dom for content.
      * @deprecated The role of this variable has been changed to **vdo**.  
@@ -54,6 +59,8 @@ export class Render {
      * ***sendData*** : 
      */
     public sendData: any;
+
+    public handle(sendData? : any) : void { }
 
     private static getHtmlRenderPath(path? : string) : string {
         if (!path) path = Lib.getRenderingPath(this.___PATH___.substring("app/".length), this.type);
@@ -131,8 +138,15 @@ export class Render {
      * @returns {Render | UI | View | Template | Dialog}
      */
     public static bind(vdo: VirtualDom, path : string, sendData : any, defaultClass: any) {
-        vdo.html = this.getHtml(path);
-        return this.loadClass(vdo, path, sendData, defaultClass);
+        const loadClass = this.loadClass(vdo, path, defaultClass) as Render;
+        if (loadClass.html) {
+            vdo.html = loadClass.html;
+        }
+        else {
+            vdo.html = this.getHtml(path);
+        }
+        if (loadClass.handle) loadClass.handle(sendData);
+        return loadClass;
     }
 
     /**
@@ -145,12 +159,19 @@ export class Render {
      */
     public static append(vdo: VirtualDom, path : string, sendData : any, defaultClass: any) {
         const myVdo = new VirtualDom();
-        vdo.append(this.getHtml(path), true);
-        vdo.reload(myVdo);
-        return this.loadClass(myVdo, path, sendData, defaultClass);
+        const loadClass = this.loadClass(myVdo, path, defaultClass);
+        if (loadClass.html) {
+            vdo.append(loadClass.html, true);
+        }
+        else {
+            vdo.append(this.getHtml(path), true);
+        }
+        myVdo.reload();
+        if (loadClass.handle) loadClass.handle(sendData);
+        return loadClass;
     }
 
-    protected static loadClass(vdo : VirtualDom, path?: string, sendData? : any, defaultClass? : any) {
+    protected static loadClass(vdo : VirtualDom, path?: string, defaultClass? : any) {
         if (path) {
             path = path + this.type;
         }
@@ -176,7 +197,6 @@ export class Render {
             classObj.vdo = vdo;
             classObj.vdos = vdo.childs;
         }
-        if (classObj.handle) classObj.handle(sendData);
         return classObj;
     }
 }

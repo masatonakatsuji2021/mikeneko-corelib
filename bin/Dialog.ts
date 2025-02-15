@@ -182,8 +182,15 @@ export class Dialog extends Render {
         if (dialogName) dialogName = "dialog/" + dialogName;
         if (!option) option = {};
         this.setDialogCss();
-        const dialogStr = "<dwindow>" + this.getHtml(dialogName) + "</dwindow>";
-        const dialogVdo = VirtualDom.create(dialogStr, "dialog");
+
+        const dialogVdo = VirtualDom.create("", "dialog");
+        const dialog : Dialog = this.loadClass(dialogVdo, dialogName, this);
+        if (dialog.html) {
+            dialogVdo.html = "<dwindow>" + dialog.html + "</dwindow>";
+        }
+        else {
+            dialogVdo.html = "<dwindow>" + this.getHtml(dialogName) + "</dwindow>";
+        }
         
         if (option.class) {
             if (typeof option.class == "string") option.class = [ option.class ];
@@ -197,7 +204,7 @@ export class Dialog extends Render {
         setTimeout(()=>{
             dialogVdo.addClass("open");
         }, 100);
-        const dialog : Dialog = this.loadClass(dialogVdo, dialogName, option.sendData, this);
+        if (dialog.handle) dialog.handle(option.sendData);
         Dialog.addDialog(dialog);
         if (option.handle) option.handle(dialog);
         return dialog;

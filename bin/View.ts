@@ -45,7 +45,7 @@ export class View extends Render {
     /**
      * ***append*** : Appends the View content to the specified virtual DOM class.
      * @param {VirtualDom} vdo Append Virtual Dom
-     * @returns {Dialog}
+     * @returns {View}
      */
     public static append(vdo: VirtualDom) : View;
 
@@ -53,7 +53,7 @@ export class View extends Render {
      * ***append*** : Appends the View content to the specified virtual DOM class.
      * @param {VirtualDom} vdo Append Virtual Dom
      * @param {string} ViewName View name
-     * @returns {Dialog}
+     * @returns {View}
      */
     public static append(vdo: VirtualDom, ViewName : string) : View;
     
@@ -62,7 +62,7 @@ export class View extends Render {
      * @param {VirtualDom} vdo Append Virtual Dom
      * @param {string} ViewName View name
      * @param {any} sendData Transmission data contents
-     * @returns {Dialog}
+     * @returns {View}
      */
     public static append(vdo: VirtualDom, ViewName : string, sendData : any) : View;
     

@@ -62,6 +62,13 @@ export class Transition {
         if (this.isBack) return false;
 
         this.isBack = true;
+        
+        if (Dialog.__dialogBuffers.length) {
+            const dialog = Dialog.__dialogBuffers.pop();
+            dialog.close();
+            this.isBack = false;
+            return true;
+        }
 
         if (Data.getLength("backHandle")) {
             const backHandle = Data.pop("backHandle");

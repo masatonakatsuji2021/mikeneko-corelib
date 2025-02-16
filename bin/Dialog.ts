@@ -25,6 +25,9 @@ export interface DialogOption {
      * ***sendData*** : Transmission data contents.
      */
     sendData?: any,
+
+
+    html? : string,
 }
 
 /**
@@ -34,7 +37,9 @@ export class Dialog extends Render {
 
     protected static type : string = "Dialog";
 
-    public static __openDialogs: {[id: string] : Dialog} = {};
+    private static __cssDom : VirtualDom;
+    
+    public static __dialogBuffers : Array<Dialog> = [];
 
     /**
      * ***handle*** : An event handler that runs when the dialog is opened.
@@ -57,25 +62,25 @@ export class Dialog extends Render {
         this.handleClose();
         setTimeout(() => {
             this.vdo.remove();
+            for(let n = 0 ; n < Dialog.__dialogBuffers.length ; n++) {
+                if (Dialog.__dialogBuffers[n] == this) Dialog.__dialogBuffers.splice(n, 1);
+            }
+            if (!Dialog.__dialogBuffers.length) {
+                Dialog.__cssDom.remove();
+                Dialog.__cssDom = null;
+            }
         }, 300);
-    }
-
-    private static addDialog(dialog: Dialog){
-        const id = Lib.uniqId();
-        this.__openDialogs[id] = dialog;
     }
 
     /**
      * ***forceClose*** : Forces all open dialogs to close.
      */
     public static forceClose() {
-        const c = Object.keys(this.__openDialogs);
-        for(let n = 0 ; n < c.length ; n++) {
-            const id = c[n];
-            const dialog = this.__openDialogs[id];
+        for(let n = 0 ; n < this.__dialogBuffers.length ; n++) {
+            const dialog = this.__dialogBuffers[n];
             dialog.close();
-            delete this.__openDialogs[id];
         }
+        this.__dialogBuffers = [];
     }
     
     /**
@@ -170,21 +175,28 @@ export class Dialog extends Render {
         if (_ != undefined) {
             if (_[0]) {
                 if (_[1]) {
-                    dialogName = _[1] as string;
-                    option = _[0] as DialogOption;
+                    dialogName = _[0] as string;
+                    option = _[1] as DialogOption;
                 }
                 else {
-                    dialogName = _[0] as string;
+                    if (typeof _[0] == "string") {
+                        dialogName = _[0] as string;
+                    }
+                    else {
+                        option = _[0];
+                    }
                 }
             }    
         }
 
         if (dialogName) dialogName = "dialog/" + dialogName;
         if (!option) option = {};
+
         this.setDialogCss();
 
         const dialogVdo = VirtualDom.create("", "dialog");
         const dialog : Dialog = this.loadClass(dialogVdo, dialogName, this);
+        if (option.html) dialog.html = option.html;
         if (dialog.html) {
             dialogVdo.html = "<dwindow>" + dialog.html + "</dwindow>";
         }
@@ -205,15 +217,17 @@ export class Dialog extends Render {
             dialogVdo.addClass("open");
         }, 100);
         if (dialog.handle) dialog.handle(option.sendData);
-        Dialog.addDialog(dialog);
+        this.__dialogBuffers.push(dialog);
         if (option.handle) option.handle(dialog);
         return dialog;
     }
 
     private static setDialogCss(){
-        if (dom("head").querySelector("link[m=dl]").length > 0)  return;
-        let style = use("CORERES/dialog/style.css");
-        if (!globalThis.webpack) style = "data:text/css;base64," + style;        
-        dom("head").afterBegin("<link rel=\"stylesheet\" m=\"dl\" href=\"" + style + "\">");
+        if (Dialog.__cssDom) return;
+        const link = VirtualDom.create("", "link");
+        link.attr("rel", "stylesheet");
+        link.href = "data:text/css;base64," + use("CORERES/dialog/style.css");
+        dom("head").afterBegin(link);
+        Dialog.__cssDom = link;
     }
 }

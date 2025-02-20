@@ -519,6 +519,29 @@ export class Transition {
         return UI.append(vdo, UIName, sendData);
     }
 
+    /**
+     * ***afterBeginUI*** : Appends (=afterbegin) the UI content to the specified virtual DOM class.
+     * * Wrapper functions from UI classes.
+     * @param {VirtualDom} vdo Append Virtual Dom
+     * @param {string} UIName UI name
+     * @returns {UI}
+     */
+    public static afterBeginUI(vdo: VirtualDom, UIName: string) : UI;
+
+    /**
+     * ***afterBeginUI*** : Appends (=afterbegin) the UI content to the specified virtual DOM class.
+    * * Wrapper functions from UI classes.
+     * @param {VirtualDom} vdo Append Virtual Dom
+     * @param {string} UIName UI name
+     * @param {any} sendData Transmission data contents
+     * @returns {UI}
+     */
+    public static afterBeginUI(vdo: VirtualDom, UIName: string, sendData : any) : UI;
+
+    public static afterBeginUI(vdo: VirtualDom, UIName: string, sendData? : any) : UI {
+        return UI.afterBegin(vdo, UIName, sendData);
+    }
+
     private static async renderingOnView(route : DecisionRoute, data?: any) {
         const viewName : string = Lib.getModuleName(route.view + "View");
         const viewPath : string = "app/view/" + Lib.getModulePath(route.view + "View");

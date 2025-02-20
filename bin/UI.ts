@@ -74,4 +74,34 @@ export class UI extends Render {
         if(UIName) UIName = "ui/" + UIName;
         return super.append(vdo, UIName, sendData, this) as UI;
     }
+
+    /**
+     * ***afterBegin*** : Appends (=afterbegin) the UI content to the specified virtual DOM class.
+     * @param {VirtualDom} vdo Append Virtual Dom
+     * @returns {UI}
+     */
+    public static afterBegin(vdo: VirtualDom) : UI;
+
+    /**
+     * ***afterBegin*** : Appends (=afterbegin) the UI content to the specified virtual DOM class.
+     * @param {VirtualDom} vdo Append Virtual Dom
+     * @param {string} UIName UI name
+     * @param {any} sendData Transmission data contents
+     * @returns {UI}
+     */
+    public static afterBegin(vdo: VirtualDom, UIName : string) : UI;
+
+    /**
+     * ***afterBegin*** : Appends (=afterbegin) the UI content to the specified virtual DOM class.
+     * @param {VirtualDom} vdo Append Virtual Dom
+     * @param {string} UIName UI name
+     * @param {any} sendData Transmission data contents
+     * @returns {UI}
+     */
+    public static afterBegin(vdo: VirtualDom, UIName : string, sendData : any) : UI;
+
+    public static afterBegin(vdo: VirtualDom, UIName? : string, sendData? : any) : UI {
+        if(UIName) UIName = "ui/" + UIName;
+        return super.afterBegin(vdo, UIName, sendData, this) as UI;
+    }
 }

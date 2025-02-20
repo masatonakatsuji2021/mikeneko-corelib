@@ -172,6 +172,28 @@ export class Render {
         return loadClass;
     }
 
+    /**
+     * ***afterBegin*** : Appends (=afterbegin) the Render content to the specified virtual DOM class.
+     * @param {VirtualDom} vdo Append Virtual Dom
+     * @param {string} path render Path
+     * @param {any} sendData Transmission data contents
+     * @param {any} defaultClass Default Response Class Object
+     * @returns {Render | UI | View | Template | Dialog}
+     */
+    public static afterBegin(vdo: VirtualDom, path : string, sendData : any, defaultClass: any) {
+        const myVdo = new VirtualDom();
+        const loadClass = this.loadClass(myVdo, path, defaultClass);
+        if (loadClass.html) {
+            vdo.afterBegin(loadClass.html, true);
+        }
+        else {
+            vdo.afterBegin(this.getHtml(path), true);
+        }
+        myVdo.reload();
+        if (loadClass.handle) loadClass.handle(sendData);
+        return loadClass;
+    }
+
     protected static loadClass(vdo : VirtualDom, path?: string, defaultClass? : any) {
         if (path) {
             path = path + this.type;

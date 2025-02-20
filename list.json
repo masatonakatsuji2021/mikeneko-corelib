@@ -4,7 +4,6 @@
     "Background", 
     "Controller", 
     "Data", 
-    "Dialog",
     "VirtualDom",
     "KeyEvent", 
     "Response", 

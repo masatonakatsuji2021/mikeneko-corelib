@@ -31,6 +31,7 @@ export class Transition {
     public static lock : boolean = false;
 
     private static get routeType() : AppRouteType {
+        // @ts-ignore
         const MyApp : typeof App = use("app/config/App").MyApp;
         return MyApp.routeType;
     }
@@ -221,11 +222,12 @@ export class Transition {
 
         const viewName = Lib.getModuleName(map.view) + "View";
         const viewPath = "app/view/" + Lib.getModulePath(map.view) + "View";
-
+        // @ts-ignore
         if (!useExists(viewPath)) {
             console.error("View not found \"" + viewPath + "\".");
             return;
         }
+        // @ts-ignore
         const view_ = use(viewPath);
         if(!view_[viewName]) {
             console.error("View Class not exist \"" + viewPath + "\".");
@@ -440,7 +442,7 @@ export class Transition {
 
     // rendering....
     public static async rendering (route: DecisionRoute, data? : any) {
-
+        // @ts-ignore
         const MyApp : typeof App = use("app/config/App").MyApp;
 
         // Controller & View Leave 
@@ -552,10 +554,11 @@ export class Transition {
     private static async renderingOnController(route : DecisionRoute, data?: any) {
         const controllerName : string = Lib.getModuleName(route.controller + "Controller");
         const controllerPath : string = "app/controller/" + Lib.getModulePath(route.controller + "Controller");
+        // @ts-ignore
         if(!useExists(controllerPath)){
             throw("\"" + controllerPath + "\" Class is not found.");
         }
-
+        // @ts-ignore
         const controllerClass = use(controllerPath);
         const cont : Controller = new controllerClass[controllerName]();
         cont.sendData = data;
@@ -564,7 +567,9 @@ export class Transition {
         const viewPath : string = "app/view/" + route.controller + "/" + Lib.getModulePath(viewName);
 
         let vw : View; 
+        // @ts-ignore
         if(useExists(viewPath)){
+            // @ts-ignore
             const View_ = use(viewPath);
             if (!View_[Lib.getModuleName(viewName)]) {
                 console.error("[WARM] \"" + Lib.getModuleName(viewName) + "\"View Class not exists.");
@@ -620,9 +625,9 @@ export class Transition {
     private static async renderingOnView(route : DecisionRoute, data?: any) {
         const viewName : string = Lib.getModuleName(route.view + "View");
         const viewPath : string = "app/view/" + Lib.getModulePath(route.view + "View");
-
+        // @ts-ignore
         if(!useExists(viewPath)) throw Error("\"" + viewName + "\" Class file is not found.");
-        
+        // @ts-ignore
         const View_ = use(viewPath);
         if (!View_[viewName]) throw Error("\"" + viewName + "\" Class is not exist.");
         const vm : View = new View_[viewName]();
@@ -642,7 +647,7 @@ export class Transition {
         }
 
         await Transition.__rendering(route, vm);
-
+        // @ts-ignore
         const MyApp : typeof App = use("app/config/App").MyApp;
 
         this.animationOpen(MyApp, vm);
@@ -768,6 +773,7 @@ export class Transition {
 
     private static setDefaultCss(){
         if (dom("head").querySelector("link[m=def]").length > 0)  return;
+        // @ts-ignore
         let style = use("CORERES/style.css");
         if (!globalThis.webpack) style = "data:text/css;base64," + style;        
         dom("head").afterBegin("<link rel=\"stylesheet\" m=\"def\" href=\"" + style + "\">");

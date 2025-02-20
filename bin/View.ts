@@ -94,7 +94,7 @@ export class View extends Render {
         return new Promise(async (resolve) => {
 
             const view = new this();
-
+            // @ts-ignore
             const MyApp : typeof App = use("app/config/App").MyApp;
 
             const article = VirtualDom.create(this.getHtml(), "article");

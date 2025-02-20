@@ -75,6 +75,7 @@ export class Render {
      */
     public static getHtmlExists(path : string) : boolean {
         const renderPath = this.getHtmlRenderPath(path);
+        // @ts-ignore
         if(!useExists(renderPath)) return false;
         return true;
     }
@@ -90,7 +91,7 @@ export class Render {
             console.error("[Rendering ERROR] Rendering data does not exist. Check if source file \"" + renderPath + "\" exists.") 
             return;
         }
-
+        // @ts-ignore
         let content : string = use(renderPath);
         if (globalThis.webpack) content = content.split("data:text/html;base64,").join("");
         content = Lib.base64Decode(content);
@@ -182,7 +183,9 @@ export class Render {
         const classPath = Lib.getModulePath("app/" + path);
         let classObj;
         try {
+            // @ts-ignore
             if (!useExists(classPath)) throw Error();
+            // @ts-ignore
             const classObj_ = use(classPath);
             classObj = new classObj_[className]();
             classObj.vdo = vdo;

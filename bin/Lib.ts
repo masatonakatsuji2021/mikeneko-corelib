@@ -9,6 +9,7 @@ export class Lib {
      * @returns 
      */
     public static existResource(path : string) : boolean {
+        // @ts-ignore
         return useExists("resource/" + path);
     }
 
@@ -19,6 +20,7 @@ export class Lib {
      * @returns {string} 
      */
     public static getResource(path : string) : string {
+        // @ts-ignore
         const data = use("resource/" + path);
         if (globalThis.webpack) return data;
         const datas = data.split("|");
@@ -43,6 +45,7 @@ export class Lib {
      * @returns 
      */
     public static getResourceDataUrl(path : string) : string {
+        // @ts-ignore
         const data = use("resource/" + path);
         if (globalThis.webpack) return data;
         const datas = data.split("|");
@@ -68,6 +71,7 @@ export class Lib {
      * @returns 
      */
     public static getResourceMimeType(path : string) : string {
+        // @ts-ignore
         const data = use("resource/" + path);
         return data.split("|")[0];
     }

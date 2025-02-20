@@ -30,7 +30,7 @@ export class Routes{
     public static _decision : DecisionRoute = null;
 
     public static searchRoute(url: string = null){
-
+        // @ts-ignore
         const MyApp : typeof App = use("app/config/App").MyApp;
 
         if(!Routes._routes){        

@@ -1,8 +1,7 @@
 [
     "Ajax",
     "App", 
-    "Background", 
-    "Controller", 
+    "Background",
     "Data", 
     "VirtualDom",
     "KeyEvent", 

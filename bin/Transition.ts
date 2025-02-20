@@ -2,7 +2,6 @@ import { App, AppRouteType } from "App";
 import { Routes, DecisionRoute, DecisionRouteMode } from "Routes";
 import { Lib } from "Lib";
 import { Data, DataService } from "Data";
-import { Controller } from "Controller";
 import { View } from "View";
 import { Template } from "Template";
 import { UI } from "UI";
@@ -431,41 +430,11 @@ export class Transition {
     public static get nowView() : View {
         if (Data.get(DataService.beforeView)) return Data.get(DataService.beforeView);
     }
-    
-    /**
-     * ***nowController*** : Get the current Controller class object if there is one.
-     * @deprecated The Controller class has been deprecated.
-     */
-    /*
-    public static get nowController() : Controller {
-        if (Data.get("beforeController")) return Data.get("beforeController");
-    }
-    */
 
     // rendering....
     public static async rendering (route: DecisionRoute, data? : any) {
         // @ts-ignore
         const MyApp : typeof App = use("app/config/App").MyApp;
-
-        // Controller & View Leave 
-        /*
-        const befCont : Controller = Data.get("beforeController");
-        if(befCont){
-            const befContAction = Data.get("beforeControllerAction");
-            const res = await befCont.handleLeave(befContAction);
-            if (typeof res == "boolean" && res === false) return;
-
-            if (this.isBack) {
-                const resBack = await befCont.handleLeaveBack(befContAction);
-                if (typeof resBack == "boolean" && resBack === false) return;
-            }
-
-            if (this.isNext) {
-                const resNext = await befCont.handleLeaveNext(befContAction);
-                if (typeof resNext == "boolean" && resNext === false) return;
-            }
-        }
-        */
 
         const befView = Data.get(DataService.beforeView);
         if(befView) {
@@ -501,12 +470,7 @@ export class Transition {
             return;
         }
 
-        if(route.controller){
-            await Transition.renderingOnController(route, data);
-        }
-        else if(route.view){
-            await Transition.renderingOnView(route, data);
-        }
+        await Transition.renderingOnView(route, data);
     }
 
     /**
@@ -555,78 +519,6 @@ export class Transition {
         return UI.append(vdo, UIName, sendData);
     }
 
-    private static async renderingOnController(route : DecisionRoute, data?: any) {
-        const controllerName : string = Lib.getModuleName(route.controller + "Controller");
-        const controllerPath : string = "app/controller/" + Lib.getModulePath(route.controller + "Controller");
-        // @ts-ignore
-        if(!useExists(controllerPath)){
-            throw("\"" + controllerPath + "\" Class is not found.");
-        }
-        // @ts-ignore
-        const controllerClass = use(controllerPath);
-        const cont : Controller = new controllerClass[controllerName]();
-        cont.sendData = data;
-
-        const viewName = route.action + "View";
-        const viewPath : string = "app/view/" + route.controller + "/" + Lib.getModulePath(viewName);
-
-        let vw : View; 
-        // @ts-ignore
-        if(useExists(viewPath)){
-            // @ts-ignore
-            const View_ = use(viewPath);
-            if (!View_[Lib.getModuleName(viewName)]) {
-                console.error("[WARM] \"" + Lib.getModuleName(viewName) + "\"View Class not exists.");
-            }
-            else {
-                vw = new View_[Lib.getModuleName(viewName)]();
-                vw.sendData = data;
-            }
-        }
-
-        /*
-        if(Data.get("beforeControllerPath")  != controllerPath){
-            Data.set("beforeControllerPath", controllerPath);
-            cont.beginStatus = true;
-        }
-
-        Data.set("beforeController", cont);
-        Data.set("beforeControllerAction", route.action);
-        */
-        Data.set(DataService.beforeView, null);
-        
-        if(cont["before_" + route.action]){
-            const method : string = "before_" + route.action;
-            if(route.args){
-                await cont[method](...route.args);
-            }
-            else{
-                await cont[method]();
-            }
-        }
-
-        await Transition.__rendering(route, cont);
-
-        if(cont[route.action]){
-            const method : string = route.action;
-            if(route.args){
-                await cont[method](...route.args);
-            }
-            else{
-                await cont[method]();
-            }
-        }
-
-        if(vw){
-            if(route.args){
-                await vw.handle(...route.args);
-            }
-            else{
-                await vw.handle();
-            }
-        }
-    }
-
     private static async renderingOnView(route : DecisionRoute, data?: any) {
         const viewName : string = Lib.getModuleName(route.view + "View");
         const viewPath : string = "app/view/" + Lib.getModulePath(route.view + "View");
@@ -639,11 +531,6 @@ export class Transition {
         vm.sendData = data;
 
         Data.set(DataService.beforeView, vm);
-        /*
-        Data.set(DataService.beforeController, null);
-        Data.set("beforeControllerPath", null);
-        Data.set("beforeControllerAction", null);
-        */
 
         if(route.args){   
             await vm.handleBefore(...route.args);
@@ -697,16 +584,9 @@ export class Transition {
         }
     }
 
-    public static async __rendering(route : DecisionRoute, context : Controller | View){
+    public static async __rendering(route : DecisionRoute, context : View){
 
-        if(!context.view){
-            if(route.controller){
-                context.view = route.controller + "/" + route.action;
-            }
-            else if(route.view){
-                context.view = route.view;
-            }
-        }
+        if(!context.view) context.view = route.view;
 
         if(context.template){
             const beforeTemplate : string = Data.get(DataService.beforeTemplate);

@@ -63,7 +63,7 @@ export class App {
 
     /**
      * ***routes*** : Routing Settings.  
-     * Enter the View or Controller name to be applied to the route path (URL) as shown below.  
+     * Enter the View name to be applied to the route path (URL) as shown below.  
      * (If there is no ``c:`` or ``a:`` description, it is the View class name.)
      * ```typescript
      * public static routes : Routes = {
@@ -71,8 +71,8 @@ export class App {
      *    "/page1": "page1",
      *    "/page2": "page2",
      *    "/page3": {
-     *       "/" : "c: page3, a: index",            // <= The index method of Page3Controller
-     *       "/edit" : "c: page3, a: edit",         // <= The edit method of Page3Controller
+     *       "/" : "page3/list",
+     *       "/edit" : "page3/edit",
      *    },
      *    ....
      * };

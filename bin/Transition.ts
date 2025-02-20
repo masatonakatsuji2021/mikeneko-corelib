@@ -7,7 +7,7 @@ import { View } from "View";
 import { Template } from "Template";
 import { UI } from "UI";
 import { dom, VirtualDom} from "VirtualDom";
-import { Dialog, DialogOption } from "Dialog";
+import { Dialog } from "Dialog";
 import { RouteMap } from "RouteMap";
 
 export interface PageHistory {
@@ -63,13 +63,6 @@ export class Transition {
 
         this.isBack = true;
         
-        if (Dialog.__dialogBuffers.length) {
-            const dialog = Dialog.__dialogBuffers.pop();
-            dialog.close();
-            this.isBack = false;
-            return true;
-        }
-
         if (Data.getLength("backHandle")) {
             const backHandle = Data.pop("backHandle");
             backHandle();
@@ -555,27 +548,6 @@ export class Transition {
 
     public static appendUI(vdo: VirtualDom, UIName: string, sendData? : any) : UI {
         return UI.append(vdo, UIName, sendData);
-    }
-
-    /**
-     * ***openDialog*** : Displays the specified dialog.
-     * * Wrapper functions from Dialog classes.
-     * @param {string} dialogName Dialog Name
-     * @returns {Dialog}
-     */
-    public static openDialog(dialogName: string) : Dialog;
-
-    /**
-     * ***openDialog*** : Displays the specified dialog.
-     * * Wrapper functions from Dialog classes.
-     * @param {string} dialogName Dialog Name
-     * @param {DialogOption} option dialog options
-     * @returns {Dialog}
-     */
-    public static openDialog(dialogName: string, option: DialogOption) : Dialog;
-
-    public static openDialog(dialogName: string, option?: DialogOption) : Dialog {
-        return Dialog.show(dialogName, option);
     }
 
     private static async renderingOnController(route : DecisionRoute, data?: any) {

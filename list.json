@@ -20,6 +20,5 @@
     "Validation",
     "View", 
     "UI", 
-    "RouteMap",
-    "Core"
+    "RouteMap"
 ]

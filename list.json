@@ -16,7 +16,6 @@
     "Template", 
     "Lib", 
     "MDateTime",
-    "Validation",
     "View", 
     "UI", 
     "RouteMap"

@@ -2,7 +2,7 @@ import { App, AppRouteType } from "App";
 import { Routes, DecisionRoute  } from "Routes";
 import { Render } from "Render";
 import { Lib } from "Lib";
-import { Data } from "Data";
+import { Data, DataService } from "Data";
 import { View } from "View";
 import { UI } from "UI";
 import { Template } from "Template";
@@ -86,8 +86,8 @@ export class Startor {
 
     private async popStateHandleDelegate(e : PopStateEvent){
 
-        if (Data.get("pageDisable")) {
-            const beforeUrl : string = Data.get("beforeUrl");
+        if (Data.get(DataService.pageDisable)) {
+            const beforeUrl : string = Data.get(DataService.beforeUrl);
             if (beforeUrl) {
                 history.pushState(null,null,beforeUrl);
             }
@@ -97,7 +97,7 @@ export class Startor {
             return false;
         }
 
-        Data.set("beforeUrl", location.hash);
+        Data.set(DataService.beforeUrl, location.hash);
         let url : string = location.hash.substring(1);
 
         if (!url) url = "/";

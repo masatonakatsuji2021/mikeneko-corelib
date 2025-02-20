@@ -1,7 +1,7 @@
 import { App, AppRouteType } from "App";
 import { Routes, DecisionRoute, DecisionRouteMode } from "Routes";
 import { Lib } from "Lib";
-import { Data } from "Data";
+import { Data, DataService } from "Data";
 import { Controller } from "Controller";
 import { View } from "View";
 import { Template } from "Template";
@@ -63,8 +63,8 @@ export class Transition {
 
         this.isBack = true;
         
-        if (Data.getLength("backHandle")) {
-            const backHandle = Data.pop("backHandle");
+        if (Data.getLength(DataService.backHandle)) {
+            const backHandle = Data.pop(DataService.backHandle);
             backHandle();
             this.isBack = false;
             return true;
@@ -73,9 +73,9 @@ export class Transition {
         let hdata : PageHistory;
         for (let n = 0 ; n < index ; n++) {
             if (this.routeType == AppRouteType.application) {
-                if (Data.getLength("history") == 1) return false;
-                Data.pop("history");
-                hdata= Data.now("history");
+                if (Data.getLength(DataService.history) == 1) return false;
+                Data.pop(DataService.history);
+                hdata= Data.now(DataService.history);
             }
             else if(this.routeType == AppRouteType.web) {
                 history.back();
@@ -183,7 +183,7 @@ export class Transition {
             url: url,
             data: data,
         };
-        Data.push("history", hdata);
+        Data.push(DataService.history, hdata);
         const route : DecisionRoute = Routes.searchRoute(url.toString());
 
         if (this.routeType == AppRouteType.web) {
@@ -251,8 +251,8 @@ export class Transition {
 
         this.isBack = true;
 
-        if (Data.getLength("backHandle")) {
-            const backHandle = Data.pop("backHandle");
+        if (Data.getLength(DataService.backHandle)) {
+            const backHandle = Data.pop(DataService.backHandle);
             backHandle(result);
             this.isBack = false;
         }
@@ -331,7 +331,7 @@ export class Transition {
             url: url,
             data: sendData,
         };
-        Data.push("history", hdata);
+        Data.push(DataService.history, hdata);
         return this;
     }
     
@@ -350,7 +350,7 @@ export class Transition {
      * @returns {void}
      */
     public static historyClear() : void {
-        Data.set("history", []);
+        Data.set(DataService.history, []);
     }
 
     /**
@@ -358,7 +358,7 @@ export class Transition {
      * @returns {void}
      */
     public static historyPop() : void {
-        Data.pop("history");
+        Data.pop(DataService.history);
     }
 
     /**
@@ -429,16 +429,18 @@ export class Transition {
      * ***nowView*** : Get the current View class object if there is one.
      */
     public static get nowView() : View {
-        if (Data.get("beforeView")) return Data.get("beforeView");
+        if (Data.get(DataService.beforeView)) return Data.get(DataService.beforeView);
     }
     
     /**
      * ***nowController*** : Get the current Controller class object if there is one.
      * @deprecated The Controller class has been deprecated.
      */
+    /*
     public static get nowController() : Controller {
         if (Data.get("beforeController")) return Data.get("beforeController");
     }
+    */
 
     // rendering....
     public static async rendering (route: DecisionRoute, data? : any) {
@@ -446,6 +448,7 @@ export class Transition {
         const MyApp : typeof App = use("app/config/App").MyApp;
 
         // Controller & View Leave 
+        /*
         const befCont : Controller = Data.get("beforeController");
         if(befCont){
             const befContAction = Data.get("beforeControllerAction");
@@ -462,8 +465,9 @@ export class Transition {
                 if (typeof resNext == "boolean" && resNext === false) return;
             }
         }
+        */
 
-        const befView = Data.get("beforeView");
+        const befView = Data.get(DataService.beforeView);
         if(befView) {
             const res = await befView.handleLeave();
             if (typeof res == "boolean" && res === false) return;
@@ -580,6 +584,7 @@ export class Transition {
             }
         }
 
+        /*
         if(Data.get("beforeControllerPath")  != controllerPath){
             Data.set("beforeControllerPath", controllerPath);
             cont.beginStatus = true;
@@ -587,8 +592,8 @@ export class Transition {
 
         Data.set("beforeController", cont);
         Data.set("beforeControllerAction", route.action);
-        Data.set("beforeView", null);
-        Data.set("childClasss", {});
+        */
+        Data.set(DataService.beforeView, null);
         
         if(cont["before_" + route.action]){
             const method : string = "before_" + route.action;
@@ -633,11 +638,12 @@ export class Transition {
         const vm : View = new View_[viewName]();
         vm.sendData = data;
 
-        Data.set("beforeView", vm);
-        Data.set("beforeController", null);
+        Data.set(DataService.beforeView, vm);
+        /*
+        Data.set(DataService.beforeController, null);
         Data.set("beforeControllerPath", null);
         Data.set("beforeControllerAction", null);
-        Data.set("childClasss",  {});
+        */
 
         if(route.args){   
             await vm.handleBefore(...route.args);
@@ -703,17 +709,17 @@ export class Transition {
         }
 
         if(context.template){
-            const beforeTemplate : string = Data.get("beforeTemplate");
+            const beforeTemplate : string = Data.get(DataService.beforeTemplate);
 
             if(beforeTemplate != context.template){
                 // Template Rendering...
-                Data.set("beforeTemplate", context.template);
+                Data.set(DataService.beforeTemplate, context.template);
                 const template = Template.bind(dom("body"), context.template);
                 if (context.handleTemplateChanged) await context.handleTemplateChanged(template);
             }
         }
         else{
-            Data.set("beforeTemplate", null);
+            Data.set(DataService.beforeTemplate, null);
         }
 
         // View Rendering...
@@ -733,9 +739,9 @@ export class Transition {
         main.html = "<article>" + viewHtml + "</article>";
         context.vdos = main.childs;
 
-        const beforeHead = Data.get("beforeHead");
+        const beforeHead = Data.get(DataService.beforeHead);
         if (beforeHead != context.head) {
-            Data.set("beforeHead", context.head);
+            Data.set(DataService.beforeHead, context.head);
             if (context.head){
                 const head = UI.bind(dom("head"), context.head);
                 if (context.handleHeadChanged) await context.handleHeadChanged(head);
@@ -746,9 +752,9 @@ export class Transition {
             this.setDefaultCss();
         }
 
-        const beforeHeader = Data.get("beforeHeader");
+        const beforeHeader = Data.get(DataService.beforeHeader);
         if (beforeHeader != context.header) {
-            Data.set("beforeHeader", context.header);
+            Data.set(DataService.beforeHeader, context.header);
             if (context.header){
                 const header = UI.bind(dom("header"), context.header);
                 if (context.handleHeaderChanged) await context.handleHeaderChanged(header);
@@ -758,9 +764,9 @@ export class Transition {
             }
         }
 
-        const beforeFooter = Data.get("beforeFooter");
+        const beforeFooter = Data.get(DataService.beforeFooter);
         if (beforeFooter != context.footer) {
-            Data.set("beforeFooter", context.footer);
+            Data.set(DataService.beforeFooter, context.footer);
             if (context.footer){
                 const footer = UI.bind(dom("footer"), context.footer);
                 if (context.handleFooterChanged) await context.handleFooterChanged(footer);

@@ -4,7 +4,7 @@ import { dom, VirtualDom } from "VirtualDom";
 import { UI } from "UI";
 import { Lib } from "Lib";
 import { App, AnimationClassSelector } from "App";
-import { Data } from "Data";
+import { Data, DataService } from "Data";
 
 /**
  * ***View*** : Main class for each screen.
@@ -105,7 +105,7 @@ export class View extends Render {
 
             this.animationStackOpen(MyApp, view);
 
-            Data.push("backHandle", async (value)=>{
+            Data.push(DataService.backHandle, async (value)=>{
 
                 this.animationStackClose(MyApp, view);
 

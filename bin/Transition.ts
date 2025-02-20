@@ -7,7 +7,6 @@ import { View } from "View";
 import { Template } from "Template";
 import { UI } from "UI";
 import { dom, VirtualDom} from "VirtualDom";
-import { Dialog } from "Dialog";
 import { RouteMap } from "RouteMap";
 
 export interface PageHistory {

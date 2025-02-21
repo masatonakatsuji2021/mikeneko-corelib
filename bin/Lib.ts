@@ -76,6 +76,33 @@ export class Lib {
         return data.split("|")[0];
     }
 
+    /**
+     * ***getPluginResourceDataUrl*** : 
+     * @param {string} pluginName plugin name
+     * @param {string} path 
+     * @returns 
+     */
+    public static getPluginResourceDataUrl(pluginName: string, path : string) : string {
+        // @ts-ignore
+        const data = use("CORERES/" + pluginName + "/" + path);
+        if (globalThis.webpack) return data;
+        const datas = data.split("|");
+        const mimeType = datas[0];
+        let content = datas[1];
+        if (
+            mimeType == "text/css" ||
+            mimeType == "text/plain" ||
+            mimeType == "text/html" ||
+            mimeType == "application/json" || 
+            mimeType == "text/javascript"
+        ) {
+            content = this.base64Decode(content);
+            content = Shortcode.analysis(content);
+            content = this.base64Encode(content);
+        }
+        return "data:" + mimeType + ";base64," + content;
+    }
+
     public static getModulePath(path : string) : string {
         const paths = path.split("/");
         paths.forEach((p_, index) => {

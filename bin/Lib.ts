@@ -80,15 +80,13 @@ export class Lib {
      * ***getPluginResourceDataUrl*** : 
      * @param {string} pluginName plugin name
      * @param {string} path 
+     * @param {string} mimeType mime type
      * @returns 
      */
-    public static getPluginResourceDataUrl(pluginName: string, path : string) : string {
+    public static getPluginResourceDataUrl(pluginName: string, path : string, mimeType: string) : string {
         // @ts-ignore
-        const data = use("CORERES/" + pluginName + "/" + path);
-        if (globalThis.webpack) return data;
-        const datas = data.split("|");
-        const mimeType = datas[0];
-        let content = datas[1];
+        let content = use("CORERES/" + pluginName + "/" + path);
+        if (globalThis.webpack) return content;
         if (
             mimeType == "text/css" ||
             mimeType == "text/plain" ||

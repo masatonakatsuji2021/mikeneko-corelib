@@ -1,5 +1,5 @@
 import { App, AppRouteType } from "App";
-import { Routes, DecisionRoute, DecisionRouteMode } from "Routes";
+import { Routes, DecisionRoute, DecisionRouteMode, Route } from "Routes";
 import { Lib } from "Lib";
 import { Data, DataService } from "Data";
 import { View } from "View";
@@ -10,7 +10,11 @@ import { RouteMap } from "RouteMap";
 
 export interface PageHistory {
 
+    view: string,
+
     url: string | number,
+
+    args?: Array<string>,
 
     data?: any,
 }
@@ -83,7 +87,12 @@ export class Transition {
 
         if(this.routeType == AppRouteType.web) return true;
        
-        const route : DecisionRoute = Routes.searchRoute(hdata.url.toString());
+        const route : DecisionRoute = {
+            mode: DecisionRouteMode.Success,
+            view: hdata.view,
+            args: hdata.args,
+            url: hdata.url.toString(),
+        };
         Transition.rendering(route, hdata.data).then(()=>{
             this.isBack = false;
         });
@@ -99,12 +108,27 @@ export class Transition {
     public static move(map : RouteMap) : void;
 
     /**
+     * ***move*** : Transitions to the specified View class.
+     * @param {typeof View} view View Class
+     * @returns {void}
+     */
+    public static move(view : typeof View) : void;
+
+    /**
      * ***move*** : Transitions to the specified RouteMap object.
      * @param {RouteMap} map RouteMap Class Object
      * @param {Array<string | number>} args request URL argrements
      * @returns {void}
      */
     public static move(map : RouteMap, args: Array<string | number>) : void;
+
+    /**
+     * ***move*** : Transitions to the specified View class.
+     * @param {typeof View} view View Class
+     * @param {Array<string | number>} args request URL argrements
+     * @returns {void}
+     */
+    public static move(view : typeof View, args: Array<string | number>) : void;
 
     /**
      * ***move*** : Transitions to the specified RouteMap object.
@@ -115,19 +139,35 @@ export class Transition {
      */
     public static move(map : RouteMap, args: Array<string | number>, data: any) : void;
 
-    public static move(map : RouteMap, args?: Array<string | number>, data?: any)  : void {
+    /**
+     * ***move*** : Transitions to the specified View class.
+     * @param {typeof View} view View Class
+     * @param {Array<string | number>} args request URL argrements
+     * @param {any} data send data (Name is not entered. Available only when routeType is app.)
+     * @returns {void}
+     */
+    public static move(view : typeof View, args: Array<string | number>, data: any) : void;
+    
+    public static move(mapOrView : RouteMap | typeof View, args?: Array<string | number>, data?: any)  : void {
         if (Transition.lock) return;
-        let url = map.url;
-        const indentifier = "{!!!}";
-        if (args) {
-            url = url.replace(/\/{([^}]+)}/g, indentifier);
-
-            for (let n = 0 ; n < args.length ; n++) {
-                url = url.replace(indentifier, "/" + args[n].toString());
+        let url : string;
+        if (mapOrView instanceof RouteMap) {
+            url = mapOrView.url;
+            const indentifier = "{!!!}";
+            if (args) {
+                url = url.replace(/\/{([^}]+)}/g, indentifier);
+    
+                for (let n = 0 ; n < args.length ; n++) {
+                    url = url.replace(indentifier, "/" + args[n].toString());
+                }
             }
+            url = url.split(indentifier).join("");
+            Transition.next(url, data);        
         }
-        url = url.split(indentifier).join("");
-        Transition.next(url, data);        
+        else {
+            const view = mapOrView as typeof View;
+            Transition.next(view, data);  
+        }
     }
 
     /**
@@ -145,6 +185,14 @@ export class Transition {
      * @returns {void}
      */
     public static next(map: RouteMap) : void;
+
+    /**
+     * ***next*** : Transitions to the specified View class.
+     * It cannot be used if screen transitions are disabled by lock, etc.  
+     * @param {typeof View} view View Class
+     * @returns {void}
+     */
+    public static next(view: typeof View) : void;
 
     /**
      * ***next*** : Transition to the specified URL (route path)  
@@ -165,6 +213,15 @@ export class Transition {
     public static next(map : RouteMap, args: Array<string | number>) : void;
 
     /**
+     * ***next*** : Transition to the specified View Class. 
+     * It cannot be used if screen transitions are disabled by lock, etc.  
+     * @param {typeof View} view View Class
+     * @param {any?} data Transmission data contents
+     * @returns {void}
+     */
+    public static next(view: typeof View, data : any) : void;
+
+    /**
      * ***next*** : Transition to the specified RouteMap class routing.  
      * It cannot be used if screen transitions are disabled by lock, etc.  
      * @param {RouteMap} map RouteMap Class Object
@@ -174,16 +231,65 @@ export class Transition {
      */
     public static next(map : RouteMap, args: Array<string | number>, data : any) : void;
 
-    public static next(url : string | number | RouteMap, data? : any, data2? : any) : void {
+    /**
+     * ***next*** : Transition to the specified View Class.  
+     * It cannot be used if screen transitions are disabled by lock, etc.  
+     * @param {typeof View} view View Class
+     * @param {Array<string | number>} args request URL argrements
+     * @param {any} data send data (Name is not entered. Available only when routeType is app.)
+    * @returns {void}
+     */
+    public static next(view: typeof View, args: Array<string | number>, data : any) : void;
+
+    public static next(target : string | number | RouteMap | typeof View, data? : any, data2? : any) : void {
+
         if (Transition.lock) return;
         this.isBack = false;
-        if (url instanceof RouteMap) return this.move(url, data, data2);
+        if (target instanceof RouteMap) return this.move(target, data, data2);
+        let url : string;
+        let route: DecisionRoute;
+        if (typeof target === "function") {
+            const view = target as typeof View;
+            // @ts-ignore
+            const viewName0 = view.___PATH___.substring("app/view/".length);
+            const viewName1 = viewName0.substring(0, viewName0.length - "View".length);
+            const viewName2 = viewName1.split("/");
+            viewName2[viewName2.length - 1] = viewName2[viewName2.length - 1].substring(0,1).toLowerCase() + viewName2[viewName2.length - 1].substring(1);
+            const viewName = viewName2.join("/");
+            url = "/";
+            route = {
+                mode: DecisionRouteMode.Success,
+                url: url,
+                view: viewName,
+            };
+        }
+                if (typeof target === "function") {
+            const view = target as typeof View;
+            // @ts-ignore
+            const viewName0 = view.___PATH___.substring("app/view/".length);
+            const viewName1 = viewName0.substring(0, viewName0.length - "View".length);
+            const viewName2 = viewName1.split("/");
+            viewName2[viewName2.length - 1] = viewName2[viewName2.length - 1].substring(0,1).toLowerCase() + viewName2[viewName2.length - 1].substring(1);
+            const viewName = viewName2.join("/");
+            url = "/";
+            route = {
+                mode: DecisionRouteMode.Success,
+                url: url,
+                view: viewName,
+            };
+        }
+        else {
+            url = target as string;
+            route = Routes.searchRoute(url.toString());
+        }
+
         const hdata : PageHistory= {
             url: url,
+            view: route.view,
+            args: route.args,
             data: data,
         };
         Data.push(DataService.history, hdata);
-        const route : DecisionRoute = Routes.searchRoute(url.toString());
 
         if (this.routeType == AppRouteType.web) {
             if (url == "/") {
@@ -208,6 +314,15 @@ export class Transition {
     public static async stack(map: RouteMap) : Promise<any> ;
 
     /**
+     * ***stack*** : Temporarily brings the specified View to the foreground.  
+     * If it is displayed using this method, it will not be saved in the history.  
+     * If the destination View has a **handleLeaveStackClose** method, you can use async/await to capture the return value.
+     * @param {typeof View} view View Class
+     * @returns {Promise<any>} 
+     */
+    public static async stack(view: typeof View) : Promise<any> ;
+
+    /**
      * ***stack*** : Temporarily bring the specified RouteMap View to the foreground.  
      * If it is displayed using this method, it will not be saved in the history.  
      * If the destination View has a **handleLeaveStackClose** method, you can use async/await to capture the return value.
@@ -217,7 +332,24 @@ export class Transition {
      */
     public static async stack(map: RouteMap, data: any) : Promise<any> ;
 
-    public static async stack(map: RouteMap, data?: any) : Promise<any> {
+    /**
+     * ***stack*** : Temporarily brings the specified View to the foreground.   
+     * If it is displayed using this method, it will not be saved in the history.  
+     * If the destination View has a **handleLeaveStackClose** method, you can use async/await to capture the return value.
+     * @param {typeof View} view View Class
+     * @param {any} data send data
+     * @returns {Promise<any>} 
+     */
+    public static async stack(view: typeof View, data: any) : Promise<any> ;
+
+    public static async stack(mapOrView: RouteMap | typeof View, data?: any) : Promise<any> {
+
+        if (!(mapOrView instanceof RouteMap)) {
+            const view = mapOrView as typeof View;
+            return await view.stackOpen(data);
+        }
+        
+        let map = mapOrView as RouteMap;            
 
         const viewName = Lib.getModuleName(map.view) + "View";
         const viewPath = "app/view/" + Lib.getModulePath(map.view) + "View";
@@ -234,7 +366,6 @@ export class Transition {
         }
 
         const view = view_[viewName] as typeof View;
-
         return await view.stackOpen(data);
     }
 
@@ -261,35 +392,52 @@ export class Transition {
      * ***historyAdd*** : Add root path to screen transition history.  
      * It will only be added to the history and will not change the screen.
      * @param {string | number} url route path
-     * @returns {Transition}
+     * @returns {typeof Transition}
      */
-    public static historyAdd(url : string | number) : Transition;
+    public static historyAdd(url : string | number) : typeof Transition;
 
     /**
      * ***historyAdd*** : Added RouteMap class object to screen transition history.  
      * It will only be added to the history and will not change the screen.
      * @param {string} map RouteMap Class Object
-     * @returns {Transition}
+     * @returns {typeof Transition}
      */
-    public static historyAdd(map : RouteMap) : Transition;
+    public static historyAdd(map : RouteMap) : typeof Transition;
+
+    /**
+     * ***historyAdd*** : Added View class to screen transition history.  
+     * It will only be added to the history and will not change the screen.
+     * @param {typeof View} view View Class
+     * @returns {typeof Transition}
+     */
+    public static historyAdd(view : typeof View) : typeof Transition;
 
     /**
      * ***historyAdd*** : Add root path to screen transition history.  
      * It will only be added to the history and will not change the screen.
      * @param {string} map RouteMap Class Object
      * @param {any} data send data
-     * @returns {Transition}
+     * @returns {typeof Transition}
      */
-    public static historyAdd(url : string | number, data: any) : Transition;
+    public static historyAdd(url : string | number, data: any) : typeof Transition;
+
+    /**
+     * ***historyAdd*** : Add root path to screen transition history.  
+     * It will only be added to the history and will not change the screen.
+     * @param {typeof View} view View Class
+     * @param {any} data send data
+     * @returns {typeof Transition}
+     */
+    public static historyAdd(view : typeof View, data: any) : typeof Transition;
 
     /**
      * ***historyAdd*** : Added RouteMap class object to screen transition history.  
      * It will only be added to the history and will not change the screen.
      * @param {RouteMap} map RouteMap Class Object
      * @param {Array<string | number>} args request URL argrements
-     * @returns {Transition}
+     * @returns {typeof Transition}
      */
-    public static historyAdd(map : RouteMap, args: Array<string | number>) : Transition;
+    public static historyAdd(map : RouteMap, args: Array<string | number>) : typeof Transition;
 
     /**
      * ***historyAdd*** : Added RouteMap class object to screen transition history.  
@@ -297,17 +445,18 @@ export class Transition {
      * @param {RouteMap} map RouteMap Class Object
      * @param {Array<string | number>} args request URL argrements
      * @param {any} data send data
-     * @returns {Transition}
+     * @returns {typeof Transition}
      */
-    public static historyAdd(map : RouteMap, args: Array<string | number>, data: any) : Transition ;
+    public static historyAdd(map : RouteMap, args: Array<string | number>, data: any) : typeof Transition ;
 
-    public static historyAdd(urlOrMap : string | number | RouteMap, data?: any, data2? : any) : Transition {
+    public static historyAdd(target : string | number | RouteMap | typeof View, data?: any, data2? : any) : typeof Transition {
         if (Transition.lock) return;
         this.isBack = false;
         let url : string;
         let sendData : any;
-        if (urlOrMap instanceof RouteMap) {
-            const map = urlOrMap as RouteMap;
+        let route : DecisionRoute;
+        if (target instanceof RouteMap) {
+            const map = target as RouteMap;
             url = map.url;
             const args = data;
             const indentifier = "{!!!}";
@@ -319,15 +468,35 @@ export class Transition {
                 }
             }
             url = url.split(indentifier).join("");
+            route = Routes.searchRoute(url.toString());
             sendData = data2;
         }
+        else if (typeof target === "function") {
+            const view = target as typeof View;
+            // @ts-ignore
+            const viewName0 = view.___PATH___.substring("app/view/".length);
+            const viewName1 = viewName0.substring(0, viewName0.length - "View".length);
+            const viewName2 = viewName1.split("/");
+            viewName2[viewName2.length - 1] = viewName2[viewName2.length - 1].substring(0,1).toLowerCase() + viewName2[viewName2.length - 1].substring(1);
+            const viewName = viewName2.join("/");
+            url = "/";
+            route = {
+                mode: DecisionRouteMode.Success,
+                url: url,
+                view: viewName,
+            };
+            sendData = data;
+        }
         else {
-            url = urlOrMap as string;
+            url = target as string;
+            route = Routes.searchRoute(url.toString());
             sendData = data;
         }
         
         const hdata : PageHistory= {
             url: url,
+            view: route.view,
+            args: route.args,
             data: sendData,
         };
         Data.push(DataService.history, hdata);
@@ -337,27 +506,30 @@ export class Transition {
     /**
      * ***addHistory*** : Add root path to screen transition history.  
      * It will only be added to the history and will not change the screen.
-     * @param {string} url route path
+     * @param {string | number | RouteMap | typeof View} url add history url or RouteMap, View Class
      * @returns {void}
      */
-    public static addHistory(url : string, data?: any) {
-        return this.historyAdd(url, data);
+    public static addHistory(target : string | number | RouteMap | typeof View, data?: any) : typeof Transition {
+        // @ts-ignore
+        return this.historyAdd(target, data);
     }
 
     /**
      * ***historyClear*** : Clear screen transition history
-     * @returns {void}
+     * @returns {typeof Transition}
      */
-    public static historyClear() : void {
+    public static historyClear() : typeof Transition {
         Data.set(DataService.history, []);
+        return this;
     }
 
     /**
      * ***historyPop*** : Go back to the previous screen transition.
-     * @returns {void}
+     * @returns {typeof Transition}
      */
-    public static historyPop() : void {
+    public static historyPop() : typeof Transition {
         Data.pop(DataService.history);
+        return this;
     }
 
     /**
@@ -376,11 +548,26 @@ export class Transition {
 
     /**
      * ***replace*** : Overwrite the screen transition history and move to the specified root path.  
+     * @param {typeof View} view View Class
+     * @returns {void}
+     */
+    public static replace(view : typeof View) : void ;
+
+    /**
+     * ***replace*** : Overwrite the screen transition history and move to the specified root path.  
      * @param {string | number} url route path
      * @param {any} data Transmission data contents
      * @returns {void}
      */
     public static replace(url : string | number, data: any) : void;
+
+    /**
+     * ***replace*** : Overwrite the screen transition history and move to the specified root path.  
+     * @param {typeof View} view View Class
+     * @param {any} data Transmission data contents
+     * @returns {void}
+     */
+    public static replace(view : typeof View, data: any) : void;
 
     /**
      * ***replace*** : Overwrites the screen transition history and navigates to the route path of the specified RouteMap class object. 
@@ -399,12 +586,14 @@ export class Transition {
      */
     public static replace(map : RouteMap, args: Array<string | number>, data?: any) : void ;
 
-    public static replace(url : string | number | RouteMap, send?: any, send2? : any) : void {
+    public static replace(url : string | number | RouteMap | typeof View, send?: any, send2? : any) : void {
         this.historyPop();
         if (url instanceof RouteMap) {
-            this.next(url, send, send2);
+            const routeMap = url as RouteMap;
+            this.next(routeMap, send, send2);
         }
         else {
+            // @ts-ignore
             this.next(url, send);
         }
     }

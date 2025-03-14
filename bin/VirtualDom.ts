@@ -549,6 +549,14 @@ export class VirtualDom {
     }
 
     /**
+     * ***css*** : Get the style sheet information (``CSSStyleDeclaration``) of a tag element.
+     * @returns {CSSStyleDeclaration}
+     */
+    public get css() : CSSStyleDeclaration {
+        return this.els[0].style;
+    }
+
+    /**
      * ***style*** : Setting style(stylesheets) attributes for an element.  
      * A code sample of TypeScript is shown below.
      * ```typescript

@@ -1,6 +1,5 @@
 import { Hook, HookNames } from "Hook";
 import { Lib } from "Lib";
-import { Shortcode } from "Shortcode";
 import { VirtualDom, VirtualDomList } from "VirtualDom";
 
 export class Render {
@@ -124,10 +123,6 @@ export class Render {
             const resource = Lib.getResourceDataUrl(src);
             el.setAttribute("src", resource);
         });
-
-        // shortcode analysis
-        el0.innerHTML = Shortcode.analysis(el0.innerHTML);
-
         return el0.innerHTML;
     }
 

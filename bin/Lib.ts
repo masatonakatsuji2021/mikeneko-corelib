@@ -1,4 +1,3 @@
-import { Shortcode } from "Shortcode";
 import { MDateTime } from "MDateTime";
 
 export class Lib {
@@ -24,18 +23,8 @@ export class Lib {
         const data = use("resource/" + path);
         if (globalThis.webpack) return data;
         const datas = data.split("|");
-        const mimeType = datas[0];
         let content = datas[1];
         content = this.base64Decode(content);
-        if (
-            mimeType == "text/css" ||
-            mimeType == "text/plain" ||
-            mimeType == "text/html" ||
-            mimeType == "application/json" || 
-            mimeType == "text/javascript"
-        ) {
-            content = Shortcode.analysis(content);
-        }
         return content;
     }
 
@@ -51,17 +40,6 @@ export class Lib {
         const datas = data.split("|");
         const mimeType = datas[0];
         let content = datas[1];
-        if (
-            mimeType == "text/css" ||
-            mimeType == "text/plain" ||
-            mimeType == "text/html" ||
-            mimeType == "application/json" || 
-            mimeType == "text/javascript"
-        ) {
-            content = this.base64Decode(content);
-            content = Shortcode.analysis(content);
-            content = this.base64Encode(content);
-        }
         return "data:" + mimeType + ";base64," + content;
     }
 
@@ -87,17 +65,6 @@ export class Lib {
         // @ts-ignore
         let content = use("CORERES/" + pluginName + "/" + path);
         if (globalThis.webpack) return content;
-        if (
-            mimeType == "text/css" ||
-            mimeType == "text/plain" ||
-            mimeType == "text/html" ||
-            mimeType == "application/json" || 
-            mimeType == "text/javascript"
-        ) {
-            content = this.base64Decode(content);
-            content = Shortcode.analysis(content);
-            content = this.base64Encode(content);
-        }
         return "data:" + mimeType + ";base64," + content;
     }
 

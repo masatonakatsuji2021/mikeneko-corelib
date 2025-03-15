@@ -8,7 +8,6 @@ import { UI } from "UI";
 import { Template } from "Template";
 import { Background } from "Background";
 import { Response } from "Response";
-import { Shortcode } from "Shortcode";
 import { Hook, HookNames } from "Hook";
 
 export class Startor {
@@ -30,8 +29,6 @@ export class Startor {
         }
 
         this.MyApp = MyApp.MyApp;
-
-        this.setShortcode();
 
         (async ()=>{
             window.addEventListener("click", (e: MouseEvent) => {
@@ -110,49 +107,6 @@ export class Startor {
         const route : DecisionRoute = Routes.searchRoute(url);
         Response.rendering(route).then(()=>{
             Response.isBack = false;
-        });
-    }
-
-    private setShortcode(){
-
-        Shortcode.add("rendering", (args : {[name : string] : string}) : string => {
-            if(!args.path) return;
-            return Render.getHtml(args.path);
-        });
-
-        Shortcode.add("view", (args : {[name : string] : string}) : string => {
-            if(!args.path) return;
-            return View.getHtml(args.path);
-        });
-
-        Shortcode.add("ui", (args : {[name : string] : string}) : string => {
-            if(!args.path) return;
-            return UI.getHtml(args.path);
-        });
-
-        Shortcode.add("template", (args : {[name : string] : string}) : string => {
-            if(!args.path) return;
-            return Template.getHtml(args.path);
-        });
-
-        Shortcode.add("resource", (args : {[name : string] : string}) : string => {
-            if(!args.url) return;
-            return Lib.getResource(args.url);
-        });
-
-        Shortcode.add("resource_dataurl", (args : {[name : string] : string}) : string => {
-            if(!args.url) return;
-            return Lib.getResourceDataUrl(args.url);
-        });
-
-        Shortcode.add("resource_mimtype", (args : {[name : string] : string}) : string => {
-            if(!args.url) return;
-            return Lib.getResourceMimeType(args.url);
-        });
-
-        Shortcode.add("uniqId", (args : {[name : string] : string}) : string => {
-            if (!args.length) args.length = "";
-            return Lib.uniqId(parseInt(args.length));
         });
     }
 }

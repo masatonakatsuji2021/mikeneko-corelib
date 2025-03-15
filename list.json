@@ -5,7 +5,6 @@
     "Data", 
     "VirtualDom",
     "KeyEvent", 
-    "Response", 
     "Transition",
     "Routes", 
     "Render",

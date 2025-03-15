@@ -1,14 +1,9 @@
 import { App, AppRouteType } from "App";
 import { Routes, DecisionRoute  } from "Routes";
-import { Render } from "Render";
-import { Lib } from "Lib";
 import { Data, DataService } from "Data";
-import { View } from "View";
-import { UI } from "UI";
-import { Template } from "Template";
 import { Background } from "Background";
-import { Response } from "Response";
 import { Hook, HookNames } from "Hook";
+import { Transition } from "Transition";
 
 export class Startor {
 
@@ -52,18 +47,17 @@ export class Startor {
             if (this.MyApp.routeType == AppRouteType.web) {
                 if (location.hash) url = location.hash.substring(1);       
                 const route : DecisionRoute = Routes.searchRoute(url);
-                Response.rendering(route).then(()=>{
-                    Response.isBack = false;
-                });
+                await Transition.rendering(route);
+                Transition.isBack = false;
             }
             else {
-                Response.next(url);
+                Transition.next(url);
             }
         })();
     }
 
     private clickHandleDelegate(e : MouseEvent){
-        if (Response.lock) return false;
+        if (Transition.lock) return false;
         // @ts-ignore
         let target : HTMLElement = e.target;
         for (let n = 0 ; n < 10; n++) {
@@ -83,7 +77,7 @@ export class Startor {
         let url = target.getAttribute("url");
         if(!url) return;
 
-        Response.next(url);
+        Transition.next(url);
     }
 
     private async popStateHandleDelegate(e : PopStateEvent){
@@ -105,9 +99,8 @@ export class Startor {
         if (!url) url = "/";
 
         const route : DecisionRoute = Routes.searchRoute(url);
-        Response.rendering(route).then(()=>{
-            Response.isBack = false;
-        });
+        await Transition.rendering(route);
+        Transition.isBack = false;
     }
 }
 export const string =  Startor.toString();

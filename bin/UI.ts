@@ -1,5 +1,6 @@
 import { VirtualDom } from "VirtualDom";
 import { Render } from "Render";
+import { Hook, HookNames } from "Hook";
 
 /**
  * **UI** : Used when sharing individual display areas in HTML rendering.  
@@ -42,6 +43,7 @@ export class UI extends Render {
 
     public static bind(vdo: VirtualDom, UIName? : string, sendData? : any) : UI {
         if(UIName) UIName = "ui/" + UIName;
+        Hook.dispatch(HookNames.UIBind, { vdo, UIName, sendData });
         return super.bind(vdo, UIName, sendData, this) as UI;
     }
 
@@ -72,6 +74,7 @@ export class UI extends Render {
 
     public static append(vdo: VirtualDom, UIName? : string, sendData? : any) : UI {
         if(UIName) UIName = "ui/" + UIName;
+        Hook.dispatch(HookNames.UIAppend, { vdo, UIName, sendData });
         return super.append(vdo, UIName, sendData, this) as UI;
     }
 

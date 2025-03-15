@@ -17,5 +17,6 @@
     "MDateTime",
     "View", 
     "UI", 
-    "RouteMap"
+    "RouteMap",
+    "Hook"
 ]

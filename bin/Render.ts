@@ -1,3 +1,4 @@
+import { Hook, HookNames } from "Hook";
 import { Lib } from "Lib";
 import { Shortcode } from "Shortcode";
 import { VirtualDom, VirtualDomList } from "VirtualDom";
@@ -140,6 +141,8 @@ export class Render {
      */
     public static bind(vdo: VirtualDom, path : string, sendData : any, defaultClass: any) {
         const loadClass = this.loadClass(vdo, path, defaultClass) as Render;
+        const htmlBuffer = Hook.dispatch(HookNames.SetRenderContent, loadClass.html);
+        if (htmlBuffer) loadClass.html = htmlBuffer;
         if (loadClass.html) {
             vdo.html = loadClass.html;
         }
@@ -161,6 +164,8 @@ export class Render {
     public static append(vdo: VirtualDom, path : string, sendData : any, defaultClass: any) {
         const myVdo = new VirtualDom();
         const loadClass = this.loadClass(myVdo, path, defaultClass);
+        const htmlBuffer = Hook.dispatch(HookNames.SetRenderContent, loadClass.html);
+        if (htmlBuffer) loadClass.html = htmlBuffer;
         if (loadClass.html) {
             vdo.append(loadClass.html, true);
         }
@@ -183,6 +188,8 @@ export class Render {
     public static afterBegin(vdo: VirtualDom, path : string, sendData : any, defaultClass: any) {
         const myVdo = new VirtualDom();
         const loadClass = this.loadClass(myVdo, path, defaultClass);
+        const htmlBuffer = Hook.dispatch(HookNames.SetRenderContent, loadClass.html);
+        if (htmlBuffer) loadClass.html = htmlBuffer;
         if (loadClass.html) {
             vdo.afterBegin(loadClass.html, true);
         }

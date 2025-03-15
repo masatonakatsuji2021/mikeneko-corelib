@@ -51,6 +51,16 @@ class FrontControl {
         if(this.__fn[name]) return true;
         return false;
     }
+    public search(name : string) {
+        const c = Object.keys(this.__fn);
+        let list = [];
+        for(let n = 0 ; n < c.length ; n++) {
+            const n_ = c[n];
+            if (n_.indexOf(name) !== 0) continue;
+            list.push(n_);
+        }
+        return list;
+    }
     public start(callback : Function) {
         window.onload = ()=>{
             if (callback) {
@@ -62,11 +72,14 @@ class FrontControl {
         };
     }
 }
-const use= (name : string) => {
+const use = (name : string) => {
     return sfa.getFn(name);
 };
 const useExists = (name: string) => {
     return sfa.exists(name);
+};
+const useSearch = (name: string) => {
+    return sfa.search(name);
 };
 // @ts-ignore
 require = use;

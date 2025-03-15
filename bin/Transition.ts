@@ -7,6 +7,7 @@ import { Template } from "Template";
 import { UI } from "UI";
 import { dom, VirtualDom} from "VirtualDom";
 import { RouteMap } from "RouteMap";
+import { Hook, HookNames } from "Hook";
 
 export interface PageHistory {
 
@@ -62,9 +63,9 @@ export class Transition {
     public static back(index? : number) : boolean {
         if (!index) index = 1;
         if (Transition.lock) return false;
-        if (this.isBack) return false;
-
+        if (this.isBack) return false;        
         this.isBack = true;
+        Hook.dispatch(HookNames.TransitionBack);
         
         if (Data.getLength(DataService.backHandle)) {
             const backHandle = Data.pop(DataService.backHandle);
@@ -150,6 +151,7 @@ export class Transition {
     
     public static move(mapOrView : RouteMap | typeof View, args?: Array<string | number>, data?: any)  : void {
         if (Transition.lock) return;
+        Hook.dispatch(HookNames.TransitionMove, mapOrView);
         let url : string;
         if (mapOrView instanceof RouteMap) {
             url = mapOrView.url;
@@ -242,9 +244,9 @@ export class Transition {
     public static next(view: typeof View, args: Array<string | number>, data : any) : void;
 
     public static next(target : string | number | RouteMap | typeof View, data? : any, data2? : any) : void {
-
         if (Transition.lock) return;
         this.isBack = false;
+        Hook.dispatch(HookNames.TransitionNext, target);
         if (target instanceof RouteMap) return this.move(target, data, data2);
         let url : string;
         let route: DecisionRoute;
@@ -343,7 +345,7 @@ export class Transition {
     public static async stack(view: typeof View, data: any) : Promise<any> ;
 
     public static async stack(mapOrView: RouteMap | typeof View, data?: any) : Promise<any> {
-
+        Hook.dispatch(HookNames.TransitionStack, mapOrView);
         if (!(mapOrView instanceof RouteMap)) {
             const view = mapOrView as typeof View;
             return await view.stackOpen(data);
@@ -378,7 +380,7 @@ export class Transition {
     public static stackClose(result : any) : void {
         if (Transition.lock) return;
         if (this.isBack) return;
-
+        Hook.dispatch(HookNames.TransitionStackClose);
         this.isBack = true;
 
         if (Data.getLength(DataService.backHandle)) {
@@ -452,6 +454,7 @@ export class Transition {
     public static historyAdd(target : string | number | RouteMap | typeof View, data?: any, data2? : any) : typeof Transition {
         if (Transition.lock) return;
         this.isBack = false;
+        Hook.dispatch(HookNames.TransitionHistoryAdd, target);
         let url : string;
         let sendData : any;
         let route : DecisionRoute;
@@ -519,6 +522,7 @@ export class Transition {
      * @returns {typeof Transition}
      */
     public static historyClear() : typeof Transition {
+        Hook.dispatch(HookNames.TransitionHistoryClear);
         Data.set(DataService.history, []);
         return this;
     }
@@ -528,6 +532,7 @@ export class Transition {
      * @returns {typeof Transition}
      */
     public static historyPop() : typeof Transition {
+        Hook.dispatch(HookNames.TransitionHistoryPop);
         Data.pop(DataService.history);
         return this;
     }
@@ -587,6 +592,7 @@ export class Transition {
     public static replace(map : RouteMap, args: Array<string | number>, data?: any) : void ;
 
     public static replace(url : string | number | RouteMap | typeof View, send?: any, send2? : any) : void {
+        Hook.dispatch(HookNames.TransitionReplace, url);
         this.historyPop();
         if (url instanceof RouteMap) {
             const routeMap = url as RouteMap;
@@ -751,7 +757,12 @@ export class Transition {
             await vm.handleBefore();
         }
 
+        Hook.dispatch(HookNames.RenderingBefore, route);
+
         await Transition.__rendering(route, vm);
+
+        Hook.dispatch(HookNames.RenderingAfter, route);
+    
         // @ts-ignore
         const MyApp : typeof App = use("app/config/App").MyApp;
 
@@ -828,6 +839,8 @@ export class Transition {
         }
         if (!dom("main").length) dom("body").append("<main></main>");
         const main = dom("main");
+        const htmlBuffer = Hook.dispatch(HookNames.SetRenderContent, viewHtml);
+        if (htmlBuffer) viewHtml = htmlBuffer;
         main.html = "<article>" + viewHtml + "</article>";
         context.vdos = main.childs;
 

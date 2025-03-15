@@ -9,12 +9,17 @@ import { Template } from "Template";
 import { Background } from "Background";
 import { Response } from "Response";
 import { Shortcode } from "Shortcode";
+import { Hook, HookNames } from "Hook";
 
 export class Startor {
 
     private MyApp : typeof App;
 
     public constructor() {
+
+        Hook.load();
+
+        Hook.dispatch(HookNames.StartorBegin);
 
         const MyApp = use("app/config/App");
         if (!MyApp){

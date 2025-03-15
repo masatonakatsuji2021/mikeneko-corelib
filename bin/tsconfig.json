@@ -1,12 +1,16 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es6",
     "module": "commonjs",
     "lib": ["es6","dom"],
+    "outDir":"../dist/es6",
     "paths": {
       "*": [ "./*"]
     }
   },
+  "include" : [
+    "./*"
+  ],
   "exclude": [
     "./source/*"
   ]

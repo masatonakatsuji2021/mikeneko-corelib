@@ -1,19 +1,29 @@
 import { Lib } from "Lib";
 import { Routes as AppRoutes } from "App";
+import { View } from "View";
 
 export interface RouteMaps{
-    [name: string] : RouteMaps | RouteMap,
+    [name: string] : RouteMaps | RouteMap | typeof View,
 }
 
-export const RMapConvert = (maps : RouteMaps) : AppRoutes => {
+export const RMapConvert = (maps : RouteMaps, continued?: boolean) : AppRoutes => {
     let res = {};
     const c = Object.keys(maps);
     for(let n = 0 ; n < c.length ; n++) {
         const name = c[n];
-        const value = maps[name];
+        let value = maps[name];
+        
+        if ((value as typeof View).___PATH___) value = RMap(value as typeof View);
 
         if (value instanceof RouteMap) {
-            if (!value.url) value.url = "/" + Lib.uniqId();
+            if (!value.url) {
+                if (!continued && n == 0) {
+                    value.url = "/";
+                }
+                else {
+                    value.url = "/" + Lib.uniqId();
+                }
+            }
             if (value.handle) {
                 res[value.url] = value.handle;
             }
@@ -25,7 +35,7 @@ export const RMapConvert = (maps : RouteMaps) : AppRoutes => {
             // Impossible...
         }
         else {
-            const buffers = RMapConvert(value);
+            const buffers = RMapConvert(value as RouteMaps, true);
             const c2 = Object.keys(buffers);
             for(let n2 = 0 ; n2 < c2.length ; n2++){
                 const name2 = c2[n2];
@@ -46,23 +56,40 @@ export class RouteMap {
 
     public handle: (url : string) => RouteMap;
 
-    public constructor(option : RouteMapDataCaseView | RouteMapDataCaseHandle | string) {
+    public constructor(option : RouteMapDataCaseView | RouteMapDataCaseHandle | string | typeof View) {
+        
         if (typeof option == "string") {
             this.view = option;
-            if (!RMapIndex) this.url = "/";
+        }
+        else if ((option as typeof View).___PATH___) {
+            this.view = this.getViewName(option as typeof View);
         }
         else {
-            if (!RMapIndex) {
-                this.url = "/";
-                if (option.url) this.url = option.url;
+            option = option as RouteMapDataCaseView | RouteMapDataCaseHandle;
+            if (option.url) {
+                this.url = option.url;
             }
-            if (option.url) this.url = option.url;
+            else {
+                this.url = "/" + Lib.uniqId();
+            }
             const optionView = option as RouteMapDataCaseView;
-            if (optionView.view) this.view = optionView.view;
+            if (optionView.view) {
+                if ((optionView.view as typeof View).___PATH___) optionView.view = this.getViewName(optionView.view as typeof View);
+                this.view = optionView.view as string;
+            }
             const optionHandle = option as RouteMapDataCaseHandle;
             if (optionHandle.handle) this.handle = optionHandle.handle;
         }
-        RMapIndex++;
+    }
+
+    private getViewName(view : typeof View) : string {
+        let viewName = view.___PATH___.substring("app/view/".length);
+        let viewNames = viewName.split("/");
+        let lastViewNames = viewNames[viewNames.length - 1];
+        lastViewNames = lastViewNames.substring(0,1).toLowerCase() + lastViewNames.substring(1, lastViewNames.length - "View".length);
+        viewNames[viewNames.length - 1] = lastViewNames;
+        viewName = viewNames.join("/");
+        return viewName;
     }
 }
 
@@ -77,7 +104,7 @@ export interface RouteMapDataCaseView {
     /**
      * ***view*** : View class name to apply.
      */
-    view: string,
+    view: string | typeof View,
 }
 
 export interface RouteMapDataCaseHandle {
@@ -96,14 +123,19 @@ export interface RouteMapDataCaseHandle {
     handle: (url : string) => RouteMap;
 }
 
-let RMapIndex : number = 0;
-
 /**
  * RMap
  * Initialize RouteMap class object.
  * @param {RouteMapDataCaseView | RouteMapDataCaseHandle | string} option RouteMap Option
  * @returns 
  */
-export const RMap = (option : RouteMapDataCaseView | RouteMapDataCaseHandle | string) : RouteMap => {
+export const RMap = (option : RouteMapDataCaseView | RouteMapDataCaseHandle | string | typeof View) : RouteMap => {
     return new RouteMap(option);
+};
+
+// @ts-ignore
+import { Maps } from "app/config/Maps";
+
+export const GetMaps = ()=>{
+    return require("app/config/Maps").Maps as typeof Maps;
 };

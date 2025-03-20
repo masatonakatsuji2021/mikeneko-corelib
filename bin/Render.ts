@@ -6,7 +6,7 @@ export class Render {
 
     protected static type : string;
 
-    protected static ___PATH___ : string;
+    public static ___PATH___ : string;
     
     /**
      * ***html*** : Place your HTML content here and it will be displayed.

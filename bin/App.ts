@@ -1,4 +1,5 @@
 import { RouteMap, RouteMaps } from "RouteMap";
+import { View } from "View";
 
 export interface Routes {
     [url : string] : string | Routes | Function,
@@ -53,7 +54,7 @@ export class App {
      * ***notFoundView*** :  
      * The view to display when accessing a URL that is not set in the routing.
      */
-    public static notFoundView : string | RouteMap;
+    public static notFoundView : string | RouteMap | typeof View;
 
     /**
      * ***begin*** : 

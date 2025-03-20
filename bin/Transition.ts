@@ -656,8 +656,11 @@ export class Transition {
                 if (MyApp.notFoundView instanceof RouteMap) {
                     route.view = MyApp.notFoundView.view;
                 }
+                else if ((MyApp.notFoundView as typeof View).___PATH___){
+                    route.view = this.getViewName(MyApp.notFoundView as typeof View);
+                }
                 else {
-                    route.view = MyApp.notFoundView;
+                    route.view = MyApp.notFoundView as string;
                 }
                 await Transition.renderingOnView(route, data);
             }
@@ -965,5 +968,15 @@ export class Transition {
             if (close) dom("main article:first-child").addClass(close);
             if (open) dom("main article:first-child").removeClass(open);    
         }
+    }
+
+    private static getViewName(view : typeof View) : string {
+        let viewName = view.___PATH___.substring("app/view/".length);
+        let viewNames = viewName.split("/");
+        let lastViewNames = viewNames[viewNames.length - 1];
+        lastViewNames = lastViewNames.substring(0,1).toLowerCase() + lastViewNames.substring(1, lastViewNames.length - "View".length);
+        viewNames[viewNames.length - 1] = lastViewNames;
+        viewName = viewNames.join("/");
+        return viewName;
     }
 }

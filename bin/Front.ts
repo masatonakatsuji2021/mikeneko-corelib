@@ -1,5 +1,6 @@
 const platform : string = "{{platform}}";
 class FrontControl {
+    private __already = [];
     private static __root : string;
     private  __fn = {};
     private  __fn_static = {};
@@ -30,6 +31,8 @@ class FrontControl {
             console.error("No data available. Check if the file exists in the source file \"" + name + "\".");
             return;
         }
+        if (this.__already.indexOf(name) > -1) return;
+        this.__already.push(name);
         const beforeName = FrontControl.__root;
         FrontControl.__root = name;
         let buffer = this.__fn[name]();
@@ -44,6 +47,12 @@ class FrontControl {
             }
         }
         if (this.__fn_static[name] == undefined) this.__fn_static[name] = buffer;
+        let newAlready = [];
+        for(let n = 0 ; n < this.__already.length ; n++) {
+            const n_ = this.__already[n];
+            if (n_ !== name) newAlready.push(n_);
+        }
+        this.__already = newAlready;
         return buffer;
     }
     public exists(name : string) : boolean {
